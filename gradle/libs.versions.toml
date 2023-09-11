@@ -1,0 +1,18 @@
+[versions]
+kotlin = "1.9.0"
+kotlinx-coroutines = "1.6.4"
+kotlinx-serialization = "1.4.1"
+sqldelight = "2.0.0-alpha05"
+rsocket = "0.15.4"
+
+[libraries]
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+rsocket-server = { module = "io.rsocket.kotlin:rsocket-ktor-server", version.ref = "rsocket" }
+rsocket-server-websockets = { module = "io.rsocket.kotlin:rsocket-transport-ktor-websocket-server", version.ref = "rsocket" }
+
+[plugins]
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+library-publish = { id = "publish-library", version.require = "SNAPSHOT" }
