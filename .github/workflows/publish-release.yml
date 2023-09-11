@@ -35,4 +35,4 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
           SSH_USER: ${{ secrets.SSH_USER }}
-        run: ./gradlew publish -Pversion=dev-${{ env.SDK_VERSION }}
+        run: ./gradlew publish -Pversion=dev-${{ env.LIB_VERSION }}
