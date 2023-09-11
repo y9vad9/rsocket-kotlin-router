@@ -30,7 +30,7 @@ jobs:
 
       - name: Build and Publish
         env:
-          LIB_VERSION: ${{ github.ref }}
+          LIB_VERSION: ${{ github.ref_name }}
           SSH_DEPLOY_PATH: ${{ secrets.SSH_DEPLOY_PATH }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
