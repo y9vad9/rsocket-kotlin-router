@@ -14,6 +14,11 @@ kotlin {
 dependencies {
     commonMainImplementation(libs.rsocket.server)
     commonMainImplementation(libs.rsocket.server.websockets)
+
+    commonMainImplementation(projects.routerCore)
+
+    commonMainImplementation(libs.kotlinx.coroutines)
+    commonTestImplementation(libs.kotlin.test)
 }
 
 deployLibrary {
@@ -25,8 +30,8 @@ deployLibrary {
 
         group = "com.y9vad9.rsocket.router"
         componentName = "kotlin"
-        artifactId = "core"
-        name = "core"
+        artifactId = "router-test"
+        name = "router-test"
 
         description = "Kotlin RSocket library for routing"
 

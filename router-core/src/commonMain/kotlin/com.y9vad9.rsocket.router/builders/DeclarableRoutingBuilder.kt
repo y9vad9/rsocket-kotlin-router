@@ -1,7 +1,9 @@
-package com.y9vad9.rsocket.router
+package com.y9vad9.rsocket.router.builders
 
 import io.rsocket.kotlin.RSocket
 import io.rsocket.kotlin.payload.Payload
+import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
+import com.y9vad9.rsocket.router.interceptors.builder.RouteInterceptorsBuilder
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -54,6 +56,16 @@ public interface DeclarableRoutingBuilder : RoutingBuilder {
      *              The block is responsible for processing the Payload object accordingly.
      */
     public fun fireAndForget(block: suspend RSocket.(payload: Payload) -> Unit)
+
+    /**
+     * Registers interceptor for current route and its sub-routes.
+     *
+     * **Experimental** due to considering better design for API.
+     */
+    @ExperimentalRouterApi
+    public fun interceptors(
+        builder: RouteInterceptorsBuilder.() -> Unit,
+    )
 }
 
 
