@@ -22,10 +22,29 @@ internal fun RSocketConnectionAcceptor(
 ): ConnectionAcceptor {
     return ConnectionAcceptor {
         RSocketRequestHandler {
-            routing(routeSeparator = '.',) {
-                route("users") {
-                    requestResponse("get") { payload ->
-                        TODO()
+            router {
+                routeSeparator = '.'
+                routeProvider { metadata -> metadata?.read(RoutingMetadata)?.tags?.first() ?: error("...") }
+                
+                preprocessors {
+                    // executes before routing feature
+                    forCoroutineContext(MyRequestPreprocessor())
+                }
+                
+                sharedInterceptors {
+                    forCoroutineContext(MyCoroutineContextInterceptor())
+                }
+                
+                routing {
+                    route("users") {
+                        interceptors {
+                            // registers for current route and sub-routes.
+                            forModification(MyModificationInterceptor())
+                        }
+                        
+                        requestResponse("get") { payload ->
+                            TODO()
+                        }
                     }
                 }
             }
@@ -34,74 +53,31 @@ internal fun RSocketConnectionAcceptor(
 }
 ```
 
-So, as you can see, library provides `routing` function for `RSocketRequestHandler` context. It has
-a few customization settings for handling routing in your own style, for example, as
-it's done in my project:
+So, as you can see, library provides `router` function for `RSocketRequestHandler` context. It has
+a few customization settings for handling routing in your own style. In addition to it, for convenience, library also provides its own interceptors API for
+kotlin coroutines and modifications.
+
+### Testing
+
+`rsocket-kotlin-router` provides ability to test your routes with `router-test` artifact:
 
 ```kotlin
-routing(
-    // in my project, I propagate routes using coroutine context and interceptors
-    routeProvider = { coroutineContext[AuthorizableRouteContext]!!.route },
-    routeSeparator = '.',
-) {
-    usersApi(...)
-    authorizationsApi(...)
-}
-```
+@Test
+fun testRoutes() {
+    runBlocking {
+        val route1 = router.routeAtOrAssert("test")
+        val route2 = router.routeAtOrAssert("test.subroute")
 
-### Routes declaration example
-```kotlin
-fun RoutingBuilder.users(
-    service: RSocketUsersService,
-): Unit = route("users") {
-    requestResponse("email.edit") { payload ->
-        payload.decoding<EditEmailRequest> { TODO() }
-    }
+        route1.assertHasInterceptor<MyInterceptor>()
+        route2.assertHasInterceptor<MyInterceptor>()
 
-    route("profile") {
-        requestResponse("edit") { payload ->
-            payload.decoding<SerializableUserPatch> { service.editUser(it).asPayload() }
-        }
-
-        requestResponse("list") { payload ->
-            payload.decoding<GetUsersRequest> { service.getUsers(it.ids).asPayload() }
-        }
-    }
-    
-    // also, you can define a multiple types of request methods on a single route:
-    route("profile") {
-        route("get") {
-            // to retrieve value only once
-            requestResponse { payload -> TODO() }
-            
-            // to stream changes, for example
-            requestStream { payload -> flowOf(TODO()) }
-        }
+        route2.fireAndForgetOrAssert(emptyRSocket(), buildPayload {
+            data("test")
+        })
     }
 }
 ```
-> `requestResponse(route: String, block: RSocket.(Payload) -> Payload)` is an extension function.
-
-In addition to it, for convenience, library also provides its own interceptors API for
-kotlin coroutines (example from my pet-project):
-```kotlin
-@OptIn(ExperimentalMetadataApi::class, ExperimentalRouterApi::class)
-class AuthorizableRoutedRequesterInterceptor(
-    private val authorizationProvider: AuthorizationProvider,
-) : CoroutineContextInterceptor() {
-    override fun coroutineContext(
-        payload: Payload,
-        coroutineContext: CoroutineContext
-    ): CoroutineContext = with(payload) {
-        val entries = metadata?.read(CompositeMetadata)?.entries
-        val route = entries?.firstOrNull().route()
-        val accessHash = entries?.getOrNull(1)?.accessHash()
-
-        return coroutineContext + AuthorizableRouteContext(route, accessHash, authorizationProvider)
-    }
-}
-```
-You can take a look at CoroutineContextInterceptor sources [here](/src/commonMain/kotlin/io/timemates/backend/rsocket/routing/interceptors/CoroutineContextInterceptor.kt).
+You can refer to [full example](router-test/src/jvmTest/kotlin/com/y9vad9/rsocket/router/test/RouterTest.kt).
 
 ## Implementation
 To implement this library, you should define next:
@@ -111,7 +87,9 @@ repositories {
 }
 
 dependencies {
-    implementation("com.y9vad9.rsocket.router:core:1.0.0")
+    implementation("com.y9vad9.rsocket.router:router-core:1.1.0")
+    // for testing
+    implementation("com.y9vad9.rsocket.router:router-test:1.1.0")
 }
 ```
 > For now, it's available for JVM only, but as there is no JVM platform API used,

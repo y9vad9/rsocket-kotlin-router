@@ -21,3 +21,5 @@ pluginManagement {
 rootProject.name = "rsocket-kotlin-router"
 
 includeBuild("build-logic/publish-library-plugin")
+
+include(":router-core", ":router-test")

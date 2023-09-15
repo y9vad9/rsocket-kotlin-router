@@ -14,6 +14,8 @@ kotlin {
 dependencies {
     commonMainImplementation(libs.rsocket.server)
     commonMainImplementation(libs.rsocket.server.websockets)
+
+    commonMainImplementation(libs.kotlinx.coroutines)
 }
 
 deployLibrary {
@@ -25,8 +27,8 @@ deployLibrary {
 
         group = "com.y9vad9.rsocket.router"
         componentName = "kotlin"
-        artifactId = "core"
-        name = "core"
+        artifactId = "router-core"
+        name = "router-core"
 
         description = "Kotlin RSocket library for routing"
 
