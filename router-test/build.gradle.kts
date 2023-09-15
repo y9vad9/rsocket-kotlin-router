@@ -28,12 +28,12 @@ deployLibrary {
         password = System.getenv("SSH_PASSWORD")
         deployPath = System.getenv("SSH_DEPLOY_PATH")
 
-        group = "com.y9vad9.rsocket.router"
+        group = "com.y9vad9.rsocket.router.test"
         componentName = "kotlin"
         artifactId = "router-test"
         name = "router-test"
 
-        description = "Kotlin RSocket library for routing"
+        description = "Library for testing rsocket routes"
 
         version = System.getenv("LIB_VERSION")
     }
