@@ -15,7 +15,7 @@ routing setup for larger projects. `rsocket-kotlin-router` serves as a solution 
 providing a neat and modular approach to managing RSocket routes and not only.
 
 ## Example
-
+Here is the small example of how it all works:
 ```kotlin
 internal fun RSocketConnectionAcceptor(
     service: YourService,
@@ -54,8 +54,8 @@ internal fun RSocketConnectionAcceptor(
 ```
 
 So, as you can see, library provides `router` function for `RSocketRequestHandler` context. It has
-a few customization settings for handling routing in your own style. In addition to it, for convenience, library also provides its own interceptors API for
-kotlin coroutines and modifications.
+a few customization settings for handling routing in your own style. In addition to it, for convenience, library also provides its own interceptors API (for processing `Payload`) with
+kotlin coroutines and modifications. You can take a look at them [here](router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt).
 
 ### Testing
 
