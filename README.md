@@ -1,15 +1,15 @@
 ![GitHub release (with filter)](https://img.shields.io/github/v/release/y9vad9/rsocket-kotlin-router)
 ![GitHub](https://img.shields.io/github/license/y9vad9/rsocket-kotlin-router)
 # rsocket-kotlin-router
-`rsocket-kotlin-router` is a customisable library designed to streamline and simplify routing
+`rsocket-kotlin-router` is a customizable library designed to streamline and simplify routing
 for RSocket Kotlin server applications. This library offers a typesafe DSL for handling various
 routes, serving as a declarative simplified alternative to manual routing that would
-otherwise result in long-winded ternary logic or exhaustive when statements.
+otherwise, result in long-winded ternary logic or exhaustive when statements.
 
 ## Features
 ### Router
 It's the basic thing in the `rsocket-kotlin-router` that's responsible for managing routes, their settings, etc. You
-can define it in a next way:
+can define it in the following way:
 ```kotlin
 val ServerRouter = router {
     router {
@@ -46,13 +46,13 @@ fun RoutingBuilder.usersRoute(): Unit = route("users") {
 ```
 > **Note** <br>
 > The library does not include the functionality to add routing to a `metadataPush` type of request. I am not sure
-> how it should be exactly implemented (API), so your ideas are welcome. For now, I consider it as per-project responsibility.
+> how it should be exactly implemented (API), so your ideas are welcome. For now, I consider it a per-project responsibility.
 ### Interceptors
 > **Warning** <br>
 > Interceptors are experimental feature: API can be changed in the future.
 
 #### Preprocessors
-Preprocessors are utilities that run before routing feature applies. For cases, when you need to transform input into something or propagate
+Preprocessors are utilities that run before the routing feature applies. For cases, when you need to transform input into something or propagate
 values using coroutines – you can extend [`Preprocessor.Modifier`](https://github.com/y9vad9/rsocket-kotlin-router/blob/8bace098e0a47e3cf514eec0dfb702f7e4e13591/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L35) or [`Preprocessor.CoroutineContext`](https://github.com/y9vad9/rsocket-kotlin-router/blob/8bace098e0a47e3cf514eec0dfb702f7e4e13591/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L27). Here's an example:
 ```kotlin
 class MyCoroutineContextElement(val value: String): CoroutineContext.Element {...}
@@ -75,7 +75,7 @@ class MyRouteInterceptor : RouteInterceptor.Modifier {
     }
 }
 ```
-It has same abilities as Preprocessors have. You can take a look at it [here](https://github.com/y9vad9/rsocket-kotlin-router/blob/8bace098e0a47e3cf514eec0dfb702f7e4e13591/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L45).
+It has the same abilities as Preprocessors. You can take a look at it [here](https://github.com/y9vad9/rsocket-kotlin-router/blob/8bace098e0a47e3cf514eec0dfb702f7e4e13591/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L45).
 ### Testability
 `rsocket-kotlin-router` provides ability to test your routes with `router-test` artifact:
 ```kotlin
@@ -97,7 +97,7 @@ fun testRoutes() {
 You can refer to [full example](router-test/src/jvmTest/kotlin/com/y9vad9/rsocket/router/test/RouterTest.kt).
 
 ## Implementation
-To implement this library, you should define next:
+To implement this library, you should define the following:
 ```kotlin
 repositories {
     maven("https://maven.y9vad9.com")
