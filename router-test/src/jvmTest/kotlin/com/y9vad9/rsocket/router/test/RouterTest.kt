@@ -2,6 +2,7 @@ package com.y9vad9.rsocket.router.test
 
 import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
 import com.y9vad9.rsocket.router.interceptors.RouteInterceptor
+import com.y9vad9.rsocket.router.router
 import io.rsocket.kotlin.payload.Payload
 import io.rsocket.kotlin.payload.buildPayload
 import io.rsocket.kotlin.payload.data
@@ -29,7 +30,7 @@ class RouterTest {
         }
     }
 
-    private val router = testRouter {
+    private val router = router {
         routeSeparator = '.'
         sharedInterceptors {
             forCoroutineContext(MyInterceptor())
