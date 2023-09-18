@@ -1,5 +1,6 @@
 package com.y9vad9.rsocket.router.builders
 
+import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
 import io.rsocket.kotlin.RSocket
 import io.rsocket.kotlin.payload.Payload
 import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
@@ -17,7 +18,7 @@ public interface DeclarableRoutingBuilder : RoutingBuilder {
      *              This lambda is responsible for processing the payload and generating the response.
      * @return The response Payload from the server.
      */
-    public fun requestResponse(block: suspend RSocket.(payload: Payload) -> Payload)
+    public fun requestResponse(block: suspend (payload: Payload) -> Payload)
 
     /**
      * Makes a stream request to the RSocket with the provided [Payload] and returns a [Flow] of [Payload] as the response.
@@ -31,7 +32,7 @@ public interface DeclarableRoutingBuilder : RoutingBuilder {
      *
      * @throws Exception if any error occurs during the stream request or handling.
      */
-    public fun requestStream(block: suspend RSocket.(payload: Payload) -> Flow<Payload>)
+    public fun requestStream(block: suspend (payload: Payload) -> Flow<Payload>)
 
     /**
      * Requests a channel within RSocket in current route.
@@ -42,7 +43,7 @@ public interface DeclarableRoutingBuilder : RoutingBuilder {
      *              The block should return a flow of payloads received from the channel.
      * @return A flow of payloads received from the channel.
      */
-    public fun requestChannel(block: suspend (RSocket.(initPayload: Payload, payloads: Flow<Payload>) -> Flow<Payload>))
+    public fun requestChannel(block: suspend (initPayload: Payload, payloads: Flow<Payload>) -> Flow<Payload>)
 
     /**
      * Executes the given [block] in a fire-and-forget manner.
@@ -55,14 +56,14 @@ public interface DeclarableRoutingBuilder : RoutingBuilder {
      *              It takes an RSocket instance and a Payload object as parameters.
      *              The block is responsible for processing the Payload object accordingly.
      */
-    public fun fireAndForget(block: suspend RSocket.(payload: Payload) -> Unit)
+    public fun fireAndForget(block: suspend (payload: Payload) -> Unit)
 
     /**
      * Registers interceptor for current route and its sub-routes.
      *
      * **Experimental** due to considering better design for API.
      */
-    @ExperimentalRouterApi
+    @ExperimentalInterceptorsApi
     public fun interceptors(
         builder: RouteInterceptorsBuilder.() -> Unit,
     )
@@ -73,28 +74,28 @@ public interface DeclarableRoutingBuilder : RoutingBuilder {
 
 public fun DeclarableRoutingBuilder.requestResponse(
     route: String,
-    block: suspend RSocket.(payload: Payload) -> Payload
+    block: suspend (payload: Payload) -> Payload
 ): Unit = route(route) {
     requestResponse(block)
 }
 
 public fun DeclarableRoutingBuilder.requestChannel(
     route: String,
-    block: suspend (RSocket.(initPayload: Payload, payloads: Flow<Payload>) -> Flow<Payload>)
+    block: suspend (initPayload: Payload, payloads: Flow<Payload>) -> Flow<Payload>
 ): Unit = route(route) {
     requestChannel(block)
 }
 
 public fun DeclarableRoutingBuilder.requestStream(
     route: String,
-    block: suspend RSocket.(payload: Payload) -> Flow<Payload>
+    block: suspend (payload: Payload) -> Flow<Payload>
 ): Unit = route(route) {
     requestStream(block)
 }
 
 public fun DeclarableRoutingBuilder.fireAndForget(
     route: String,
-    block: suspend RSocket.(payload: Payload) -> Unit
+    block: suspend (payload: Payload) -> Unit
 ): Unit = route(route) {
     fireAndForget(block)
 }

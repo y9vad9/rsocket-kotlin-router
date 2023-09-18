@@ -25,7 +25,7 @@ class RouterTest {
             override val key: CoroutineContext.Key<*>
                 get() = Key
         }
-        override fun intercept(coroutineContext: CoroutineContext, input: Payload): CoroutineContext {
+        override fun intercept(route: String, coroutineContext: CoroutineContext, input: Payload): CoroutineContext {
             return coroutineContext + SomeCoroutineContextElement("test")
         }
     }
@@ -59,9 +59,7 @@ class RouterTest {
             route1.assertHasInterceptor<MyInterceptor>()
             route2.assertHasInterceptor<MyInterceptor>()
 
-            route2.fireAndForgetOrAssert(emptyRSocket(), buildPayload {
-                data("test")
-            })
+            route2.fireAndForgetOrAssert(buildPayload { data("test")})
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.y9vad9.rsocket.router.interceptors
 
+import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
 import io.ktor.utils.io.core.*
 import io.rsocket.kotlin.payload.Payload
 import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
@@ -10,8 +11,8 @@ import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
  * @param <T> The type of the request.
  * @param <R> The return type of the interceptor.
  */
-@ExperimentalRouterApi
-public sealed interface Interceptor<T, R>
+@ExperimentalInterceptorsApi
+public sealed interface Interceptor
 
 /**
  * This interface represents a preprocessor, which is an interceptor for intercepting requests before the route feature.
@@ -19,8 +20,8 @@ public sealed interface Interceptor<T, R>
  * @param T the input type of the preprocessor
  * @param R the output type of the preprocessor
  */
-@ExperimentalRouterApi
-public sealed interface Preprocessor<T, R> : Interceptor<T, R> {
+@ExperimentalInterceptorsApi
+public sealed interface Preprocessor : Interceptor {
     /**
      * A coroutine context, which is responsible for preprocessing payloads
      * and intercepting coroutine execution.
@@ -28,7 +29,7 @@ public sealed interface Preprocessor<T, R> : Interceptor<T, R> {
      * **Incoming payload should be copied itself if needed**. By default,
      * it's not copied after / before Preprocessor is called.
      */
-    public fun interface CoroutineContext : Preprocessor<Payload, CoroutineContext> {
+    public fun interface CoroutineContext : Preprocessor {
         public fun intercept(coroutineContext: kotlin.coroutines.CoroutineContext, input: Payload): kotlin.coroutines.CoroutineContext
     }
 
@@ -36,7 +37,7 @@ public sealed interface Preprocessor<T, R> : Interceptor<T, R> {
      * This interface represents a modifier that can be used to preprocess payloads.
      * @see Preprocessor
      */
-    public fun interface Modifier : Preprocessor<Payload, Payload> {
+    public fun interface Modifier : Preprocessor {
         public fun intercept(input: Payload): Payload
     }
 }
@@ -45,16 +46,20 @@ public sealed interface Preprocessor<T, R> : Interceptor<T, R> {
 /**
  * Interceptr that works after route feature.
  */
-@ExperimentalRouterApi
-public sealed interface RouteInterceptor<T, R> : Interceptor<T, R> {
+@ExperimentalInterceptorsApi
+public sealed interface RouteInterceptor : Interceptor {
 
     /**
      * The CoroutineContext interface is used to propagate values to request execution.
      * **Incoming payload should be copied itself if needed**. By default,
      * it's not copied after / before Preprocessor is called.
      */
-    public fun interface CoroutineContext : RouteInterceptor<RouteAwarePayload, kotlin.coroutines.CoroutineContext> {
-        public fun intercept(coroutineContext: kotlin.coroutines.CoroutineContext, input: Payload): kotlin.coroutines.CoroutineContext
+    public fun interface CoroutineContext : RouteInterceptor {
+        public fun intercept(
+            route: String,
+            coroutineContext: kotlin.coroutines.CoroutineContext,
+            input: Payload,
+        ): kotlin.coroutines.CoroutineContext
     }
 
 
@@ -65,20 +70,7 @@ public sealed interface RouteInterceptor<T, R> : Interceptor<T, R> {
      * @param <RouteAwarePayload> The type of payload that contains information about the route.
      * @param <Payload> The type of payload to be modified.
      */
-    public fun interface Modifier : RouteInterceptor<RouteAwarePayload, Payload> {
-        public fun intercept(input: Payload): Payload
+    public fun interface Modifier : RouteInterceptor {
+        public fun intercept(route: String, input: Payload): Payload
     }
 }
-
-/**
- * Represents a payload that is aware of the route it belongs to.
- *
- * @property route The route associated with the payload.
- * @property data The data packet of the payload.
- * @property metadata The optional metadata packet of the payload.
- */
-public data class RouteAwarePayload(
-    public val route: String,
-    public val data: ByteReadPacket,
-    public val metadata: ByteReadPacket?,
-)

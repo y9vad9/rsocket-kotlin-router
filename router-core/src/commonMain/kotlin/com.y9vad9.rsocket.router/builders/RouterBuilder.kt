@@ -3,6 +3,7 @@ package com.y9vad9.rsocket.router.builders
 import io.ktor.utils.io.core.*
 import com.y9vad9.rsocket.router.Router
 import com.y9vad9.rsocket.router.RouterImpl
+import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
 import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
 import com.y9vad9.rsocket.router.annotations.InternalRouterApi
 import com.y9vad9.rsocket.router.annotations.RouterDsl
@@ -14,10 +15,10 @@ import com.y9vad9.rsocket.router.interceptors.builder.RouteInterceptorsBuilder
 
 @RouterDsl
 public class RouterBuilder @InternalRouterApi constructor() {
-    @ExperimentalRouterApi
-    private var preprocessors: List<Preprocessor<*, *>>? = null
-    @ExperimentalRouterApi
-    private var sharedInterceptors: List<RouteInterceptor<*, *>>? = null
+    @ExperimentalInterceptorsApi
+    private var preprocessors: List<Preprocessor>? = null
+    @ExperimentalInterceptorsApi
+    private var sharedInterceptors: List<RouteInterceptor>? = null
 
     private var routingConfiguration: (RoutingBuilder.() -> Unit)? = null
 
@@ -42,13 +43,13 @@ public class RouterBuilder @InternalRouterApi constructor() {
      *
      * @param builder The lambda function where the preprocessors are configured using the `PreprocessorsBuilder`.
      */
-    @ExperimentalRouterApi
+    @ExperimentalInterceptorsApi
     public fun preprocessors(builder: PreprocessorsBuilder.() -> Unit) {
         require(preprocessors == null) { "preprocessors should be defined once." }
         preprocessors = PreprocessorsBuilder().apply(builder).build()
     }
 
-    @ExperimentalRouterApi
+    @ExperimentalInterceptorsApi
     public fun sharedInterceptors(builder: RouteInterceptorsBuilder.() -> Unit) {
         require(sharedInterceptors == null) { "sharedInterceptors should be defined once." }
         sharedInterceptors = RouteInterceptorsBuilder().apply(builder).build()
@@ -66,7 +67,7 @@ public class RouterBuilder @InternalRouterApi constructor() {
         routingConfiguration = block
     }
 
-    @OptIn(ExperimentalRouterApi::class)
+    @OptIn(ExperimentalRouterApi::class, ExperimentalInterceptorsApi::class)
     @InternalRouterApi
     public fun build(): Router {
         require(routingConfiguration != null) { "routing should be defined" }

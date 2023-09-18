@@ -1,5 +1,6 @@
 package com.y9vad9.rsocket.router
 
+import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
 import io.ktor.utils.io.core.*
 import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
 import com.y9vad9.rsocket.router.annotations.InternalRouterApi
@@ -28,14 +29,14 @@ public sealed interface Router {
      * Preprocessors are always run before any processing from router. They're
      * experimental due to considerations of better API.
      */
-    @ExperimentalRouterApi
-    public val preprocessors: List<Preprocessor<*, *>>
+    @ExperimentalInterceptorsApi
+    public val preprocessors: List<Preprocessor>
 
     /**
      * The list of interceptors that are shared to all the routes.
      */
-    @ExperimentalRouterApi
-    public val sharedInterceptors: List<RouteInterceptor<*, *>>
+    @ExperimentalInterceptorsApi
+    public val sharedInterceptors: List<RouteInterceptor>
 
     /**
      * Retrieves route based on given [path].
@@ -66,22 +67,22 @@ public fun router(builder: RouterBuilder.() -> Unit): Router = RouterBuilder().a
 public fun Router.installOn(handlerBuilder: RSocketRequestHandlerBuilder): Unit = with(handlerBuilder) {
     requestResponse { payload ->
         routeAtOrFail(getRoutePathFromMetadata(payload.metadata))
-            .requestResponseOrThrow(this, payload)
+            .requestResponseOrThrow(payload)
     }
 
     requestStream { payload ->
         routeAtOrFail(getRoutePathFromMetadata(payload.metadata))
-            .requestStreamOrThrow(this, payload)
+            .requestStreamOrThrow(payload)
     }
 
     requestChannel { initPayload, payloads ->
         routeAtOrFail(getRoutePathFromMetadata(initPayload.metadata))
-            .requestChannelOrThrow(this, initPayload, payloads)
+            .requestChannelOrThrow(initPayload, payloads)
     }
 
     fireAndForget { payload ->
         routeAtOrFail(getRoutePathFromMetadata(payload.metadata))
-            .fireAndForgetOrThrow(this, payload)
+            .fireAndForgetOrThrow(payload)
     }
 }
 
@@ -104,12 +105,12 @@ public fun Router.routeAtOrFail(path: String): Route =
 
 // -- internal implementation --
 
-internal class RouterImpl @ExperimentalRouterApi constructor(
+internal class RouterImpl @[ExperimentalRouterApi ExperimentalInterceptorsApi] constructor(
     override val routeSeparator: Char,
     @property:ExperimentalRouterApi
-    override val preprocessors: List<Preprocessor<*, *>>,
+    override val preprocessors: List<Preprocessor>,
     @property:ExperimentalRouterApi
-    override val sharedInterceptors: List<RouteInterceptor<*, *>>,
+    override val sharedInterceptors: List<RouteInterceptor>,
     private val routes: Map<String, Route>,
     private var routeProvider: suspend (metadata: ByteReadPacket?) -> String,
 ) : Router {

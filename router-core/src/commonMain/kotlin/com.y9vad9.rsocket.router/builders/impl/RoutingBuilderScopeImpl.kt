@@ -10,8 +10,8 @@ import com.y9vad9.rsocket.router.interceptors.RouteInterceptor
 @OptIn(ExperimentalRouterApi::class)
 internal class RoutingBuilderScopeImpl(
     private val separator: Char,
-    private val sharedInterceptors: List<RouteInterceptor<*, *>>,
-    private val preprocessors: List<Preprocessor<*, *>>,
+    private val sharedInterceptors: List<RouteInterceptor>,
+    private val preprocessors: List<Preprocessor>,
 ) : RoutingBuilder {
     private val subRoutes = mutableMapOf<String, Route>()
 

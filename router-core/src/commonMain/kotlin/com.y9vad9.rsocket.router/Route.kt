@@ -2,6 +2,7 @@
 
 package com.y9vad9.rsocket.router
 
+import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
 import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
 import com.y9vad9.rsocket.router.interceptors.Preprocessor
 import com.y9vad9.rsocket.router.interceptors.RouteInterceptor
@@ -13,41 +14,42 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-@OptIn(ExperimentalRouterApi::class)
+@OptIn(ExperimentalInterceptorsApi::class, ExperimentalRouterApi::class)
 public data class Route internal constructor(
     val path: String,
     @property:ExperimentalRouterApi
     internal val requests: Requests,
-    val preprocessors: List<Preprocessor<*, *>>,
-    val interceptors: List<RouteInterceptor<*, *>>,
+    @property:ExperimentalInterceptorsApi
+    val preprocessors: List<Preprocessor>,
+    @property:ExperimentalInterceptorsApi
+    val interceptors: List<RouteInterceptor>,
 ) {
-    public suspend fun fireAndForgetOrThrow(rSocket: RSocket, payload: Payload) {
+    public suspend fun fireAndForgetOrThrow(payload: Payload) {
         processPayload(payload) { payload ->
-            requests.fireAndForget?.invoke(rSocket, payload)
+            requests.fireAndForget?.invoke(payload)
                 ?: throwInvalidRequestOnRoute("fireAndForget")
         }
     }
 
-    public suspend fun requestResponseOrThrow(rSocket: RSocket, payload: Payload): Payload {
+    public suspend fun requestResponseOrThrow(payload: Payload): Payload {
         return processPayload(payload) { payload ->
-            requests.requestResponse?.invoke(rSocket, payload)
+            requests.requestResponse?.invoke(payload)
                 ?: throwInvalidRequestOnRoute("requestResponse")
         }
     }
 
-    public suspend fun requestStreamOrThrow(rSocket: RSocket, payload: Payload): Flow<Payload> {
+    public suspend fun requestStreamOrThrow(payload: Payload): Flow<Payload> {
         return processPayload(payload) { payload ->
-            requests.requestStream?.invoke(rSocket, payload)
+            requests.requestStream?.invoke(payload)
                 ?: throwInvalidRequestOnRoute("requestStream")
         }
     }
 
     public suspend fun requestChannelOrThrow(
-        rSocket: RSocket,
         initPayload: Payload,
         payloads: Flow<Payload>,
     ): Flow<Payload> = processPayload(initPayload) { initialPayload ->
-        requests.requestChannel?.invoke(rSocket, initialPayload, payloads)
+        requests.requestChannel?.invoke(initialPayload, payloads)
             ?: throwInvalidRequestOnRoute("requestChannel")
     }
 
@@ -57,9 +59,9 @@ public data class Route internal constructor(
         val payload =
             interceptors.fold(payload) { acc, interceptor ->
                 when (interceptor) {
-                    is RouteInterceptor.Modifier -> interceptor.intercept(acc)
+                    is RouteInterceptor.Modifier -> interceptor.intercept(path, acc)
                     is RouteInterceptor.CoroutineContext -> {
-                        coroutineContext = interceptor.intercept(coroutineContext, acc)
+                        coroutineContext = interceptor.intercept(path, coroutineContext, acc)
                         acc
                     }
                 }
@@ -71,12 +73,19 @@ public data class Route internal constructor(
     }
 
     internal data class Requests(
-        val fireAndForget: (suspend RSocket.(payload: Payload) -> Unit)? = null,
-        val requestResponse: (suspend RSocket.(payload: Payload) -> Payload)? = null,
-        val requestStream: (suspend RSocket.(payload: Payload) -> Flow<Payload>)? = null,
-        val requestChannel: (suspend RSocket.(initPayload: Payload, payloads: Flow<Payload>) -> Flow<Payload>)? = null,
+        val fireAndForget: (suspend (payload: Payload) -> Unit)? = null,
+        val requestResponse: (suspend (payload: Payload) -> Payload)? = null,
+        val requestStream: (suspend (payload: Payload) -> Flow<Payload>)? = null,
+        val requestChannel: (suspend (initPayload: Payload, payloads: Flow<Payload>) -> Flow<Payload>)? = null,
     )
 }
 
 private fun Route.throwInvalidRequestOnRoute(requestType: String): Nothing =
     throw RSocketError.Invalid("No `$requestType` is registered for `$path` route.")
+
+@OptIn(ExperimentalInterceptorsApi::class)
+public class MyRouteInterceptor : RouteInterceptor.Modifier {
+    override fun intercept(route: String, input: Payload): Payload {
+        return Payload.Empty // just for example
+    }
+}

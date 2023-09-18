@@ -14,35 +14,35 @@ import kotlinx.coroutines.flow.Flow
 internal class DeclarableRoutingBuilderScopeImpl(
     private val path: String,
     private val separator: Char,
-    private val inheritedInterceptors: List<RouteInterceptor<*, *>>,
-    private val preprocessors: List<Preprocessor<*, *>>,
+    private val inheritedInterceptors: List<RouteInterceptor>,
+    private val preprocessors: List<Preprocessor>,
 ) : DeclarableRoutingBuilder {
-    private var currentInterceptors: List<RouteInterceptor<*, *>>? = null
+    private var currentInterceptors: List<RouteInterceptor>? = null
     private var requests = Route.Requests()
     private val subRoutes = mutableMapOf<String, Route>()
 
-    override fun requestResponse(block: suspend RSocket.(payload: Payload) -> Payload) {
+    override fun requestResponse(block: suspend (payload: Payload) -> Payload) {
         require(requests.requestResponse == null) { "Request-Response is already defined." }
         requests = requests.copy(
             requestResponse = block,
         )
     }
 
-    override fun requestStream(block: suspend RSocket.(payload: Payload) -> Flow<Payload>) {
+    override fun requestStream(block: suspend (payload: Payload) -> Flow<Payload>) {
         require(requests.requestResponse == null) { "Request-Stream is already defined." }
         requests = requests.copy(
             requestStream = block,
         )
     }
 
-    override fun requestChannel(block: suspend RSocket.(initPayload: Payload, payloads: Flow<Payload>) -> Flow<Payload>) {
+    override fun requestChannel(block: suspend (initPayload: Payload, payloads: Flow<Payload>) -> Flow<Payload>) {
         require(requests.requestChannel == null) { "Request-Channel is already defined." }
         requests = requests.copy(
             requestChannel = block,
         )
     }
 
-    override fun fireAndForget(block: suspend RSocket.(payload: Payload) -> Unit) {
+    override fun fireAndForget(block: suspend (payload: Payload) -> Unit) {
         require(requests.fireAndForget == null) { "Fire-and-Forget is already defined." }
         requests = requests.copy(
             fireAndForget = block,

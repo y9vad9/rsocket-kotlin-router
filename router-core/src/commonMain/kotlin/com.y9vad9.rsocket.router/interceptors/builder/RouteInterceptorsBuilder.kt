@@ -1,11 +1,12 @@
 package com.y9vad9.rsocket.router.interceptors.builder
 
+import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
 import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
 import com.y9vad9.rsocket.router.interceptors.RouteInterceptor
 
-@ExperimentalRouterApi
+@ExperimentalInterceptorsApi
 public class RouteInterceptorsBuilder internal constructor() {
-    private val interceptors = mutableListOf<RouteInterceptor<*, *>>()
+    private val interceptors = mutableListOf<RouteInterceptor>()
 
     public fun forCoroutineContext(interceptor: RouteInterceptor.CoroutineContext) {
         interceptors += interceptor
@@ -15,5 +16,5 @@ public class RouteInterceptorsBuilder internal constructor() {
         interceptors += interceptor
     }
 
-    internal fun build(): List<RouteInterceptor<*, *>> = interceptors.toList()
+    internal fun build(): List<RouteInterceptor> = interceptors.toList()
 }
