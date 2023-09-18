@@ -1,6 +1,7 @@
 package com.y9vad9.rsocket.router.builders.impl
 
 import com.y9vad9.rsocket.router.Route
+import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
 import com.y9vad9.rsocket.router.builders.DeclarableRoutingBuilder
 import com.y9vad9.rsocket.router.interceptors.Preprocessor
 import com.y9vad9.rsocket.router.interceptors.RouteInterceptor
@@ -8,6 +9,7 @@ import com.y9vad9.rsocket.router.interceptors.builder.RouteInterceptorsBuilder
 import io.rsocket.kotlin.payload.Payload
 import kotlinx.coroutines.flow.Flow
 
+@OptIn(ExperimentalInterceptorsApi::class)
 internal class DeclarableRoutingBuilderScopeImpl(
     private val path: String,
     private val separator: Char,
