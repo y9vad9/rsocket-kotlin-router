@@ -1,14 +1,13 @@
 package com.y9vad9.rsocket.router
 
 import io.ktor.utils.io.core.*
-import io.rsocket.kotlin.RSocketError
-import io.rsocket.kotlin.RSocketRequestHandlerBuilder
 import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
 import com.y9vad9.rsocket.router.annotations.InternalRouterApi
 import com.y9vad9.rsocket.router.annotations.RouterDsl
 import com.y9vad9.rsocket.router.builders.RouterBuilder
 import com.y9vad9.rsocket.router.interceptors.Preprocessor
 import com.y9vad9.rsocket.router.interceptors.RouteInterceptor
+import io.rsocket.kotlin.*
 
 /**
  * The RSocket router with all registered routes, configurations, preprocessors
@@ -49,32 +48,49 @@ public sealed interface Router {
 
 // -- builders --
 
-@OptIn(ExperimentalRouterApi::class, InternalRouterApi::class)
 @RouterDsl
-public fun RSocketRequestHandlerBuilder.router(builder: RouterBuilder.() -> Unit): Router {
-    val router = RouterBuilder().apply(builder).build()
+public fun RSocketRequestHandlerBuilder.router(block: RouterBuilder.() -> Unit): Router {
+    return router(builder = block).also { router -> router.installOn(this) }
+}
 
+@OptIn(InternalRouterApi::class)
+public fun router(builder: RouterBuilder.() -> Unit): Router = RouterBuilder().apply(builder).build()
+
+/**
+ * Applies [Router] to given [RSocketRequestHandlerBuilder]. All registered routes are listened.
+ *
+ * **Implementation note**: As [Router] does not provide `metadataPush` feature, this function is especially
+ * useful if you want to additionally provide it for your [RSocket] instance.
+ */
+@OptIn(ExperimentalRouterApi::class, InternalRouterApi::class)
+public fun Router.installOn(handlerBuilder: RSocketRequestHandlerBuilder): Unit = with(handlerBuilder) {
     requestResponse { payload ->
-        router.routeAtOrFail(router.getRoutePathFromMetadata(payload.metadata))
+        routeAtOrFail(getRoutePathFromMetadata(payload.metadata))
             .requestResponseOrThrow(this, payload)
     }
 
     requestStream { payload ->
-        router.routeAtOrFail(router.getRoutePathFromMetadata(payload.metadata))
+        routeAtOrFail(getRoutePathFromMetadata(payload.metadata))
             .requestStreamOrThrow(this, payload)
     }
 
     requestChannel { initPayload, payloads ->
-        router.routeAtOrFail(router.getRoutePathFromMetadata(initPayload.metadata))
+        routeAtOrFail(getRoutePathFromMetadata(initPayload.metadata))
             .requestChannelOrThrow(this, initPayload, payloads)
     }
 
     fireAndForget { payload ->
-        router.routeAtOrFail(router.getRoutePathFromMetadata(payload.metadata))
+        routeAtOrFail(getRoutePathFromMetadata(payload.metadata))
             .fireAndForgetOrThrow(this, payload)
     }
+}
 
-    return router
+
+@Suppress("UnusedReceiverParameter")
+public fun ConnectionAcceptor.installRouter(router: Router): RSocket {
+    return RSocketRequestHandler {
+        router.installOn(this)
+    }
 }
 
 
