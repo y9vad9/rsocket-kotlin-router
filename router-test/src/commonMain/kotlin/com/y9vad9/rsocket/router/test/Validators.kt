@@ -3,11 +3,9 @@ package com.y9vad9.rsocket.router.test
 import com.y9vad9.rsocket.router.Route
 import com.y9vad9.rsocket.router.Router
 import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
-import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
 import com.y9vad9.rsocket.router.interceptors.Preprocessor
 import com.y9vad9.rsocket.router.interceptors.RouteInterceptor
 import io.ktor.util.reflect.*
-import io.rsocket.kotlin.RSocket
 import io.rsocket.kotlin.payload.Payload
 import kotlinx.coroutines.flow.Flow
 import kotlin.reflect.KClass
@@ -53,7 +51,6 @@ public suspend fun Route.requestStreamOrAssert(payload: Payload): Flow<Payload> 
 }
 
 public suspend fun Route.requestChannelOrAssert(
-    rSocket: RSocket,
     initPayload: Payload,
     payloads: Flow<Payload>,
 ): Flow<Payload> = try {

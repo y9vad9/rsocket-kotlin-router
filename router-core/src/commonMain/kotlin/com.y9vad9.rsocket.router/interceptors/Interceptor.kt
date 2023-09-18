@@ -1,9 +1,7 @@
 package com.y9vad9.rsocket.router.interceptors
 
 import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
-import io.ktor.utils.io.core.*
 import io.rsocket.kotlin.payload.Payload
-import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
 
 /**
  * An interceptor for the RSocket library used by Router.
@@ -16,9 +14,6 @@ public sealed interface Interceptor
 
 /**
  * This interface represents a preprocessor, which is an interceptor for intercepting requests before the route feature.
- *
- * @param T the input type of the preprocessor
- * @param R the output type of the preprocessor
  */
 @ExperimentalInterceptorsApi
 public sealed interface Preprocessor : Interceptor {

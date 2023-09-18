@@ -1,7 +1,6 @@
 package com.y9vad9.rsocket.router.interceptors.builder
 
 import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
-import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
 import com.y9vad9.rsocket.router.interceptors.RouteInterceptor
 
 @ExperimentalInterceptorsApi

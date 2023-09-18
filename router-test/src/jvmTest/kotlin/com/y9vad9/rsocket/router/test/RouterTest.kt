@@ -13,7 +13,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-@OptIn(ExperimentalRouterApi::class)
 class RouterTest {
     private class MyInterceptor : RouteInterceptor.CoroutineContext {
 

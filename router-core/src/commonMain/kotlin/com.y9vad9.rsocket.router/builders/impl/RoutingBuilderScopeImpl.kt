@@ -7,7 +7,6 @@ import com.y9vad9.rsocket.router.builders.RoutingBuilder
 import com.y9vad9.rsocket.router.interceptors.Preprocessor
 import com.y9vad9.rsocket.router.interceptors.RouteInterceptor
 
-@OptIn(ExperimentalRouterApi::class)
 internal class RoutingBuilderScopeImpl(
     private val separator: Char,
     private val sharedInterceptors: List<RouteInterceptor>,
@@ -15,7 +14,6 @@ internal class RoutingBuilderScopeImpl(
 ) : RoutingBuilder {
     private val subRoutes = mutableMapOf<String, Route>()
 
-    @OptIn(ExperimentalRouterApi::class)
     override fun route(route: String, block: DeclarableRoutingBuilder.() -> Unit) {
         subRoutes += DeclarableRoutingBuilderScopeImpl(
             path = route,
