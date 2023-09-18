@@ -17,4 +17,4 @@ jobs:
           distribution: 'corretto'
           java-version: '17'
           cache: 'gradle'
-      - run: ./gradlew test --no-daemon
+      - run: ./gradlew check --no-daemon
