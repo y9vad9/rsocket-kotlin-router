@@ -53,7 +53,7 @@ fun RoutingBuilder.usersRoute(): Unit = route("users") {
 
 #### Preprocessors
 Preprocessors are utilities that run before routing feature applies. For cases, when you need to transform input into something or propagate
-values using coroutines – you can extend [`Preprocessor.Modifier`](https://github.com/y9vad9/rsocket-kotlin-router/blob/2a794e9a8c5d2ac53cb87ea58cfbe4a2ecfa217d/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L39) or [`Preprocessor.CoroutineContext`](https://github.com/y9vad9/rsocket-kotlin-router/blob/master/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L31). Here's an example:
+values using coroutines – you can extend [`Preprocessor.Modifier`](https://github.com/y9vad9/rsocket-kotlin-router/blob/8bace098e0a47e3cf514eec0dfb702f7e4e13591/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L35) or [`Preprocessor.CoroutineContext`](https://github.com/y9vad9/rsocket-kotlin-router/blob/8bace098e0a47e3cf514eec0dfb702f7e4e13591/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L27). Here's an example:
 ```kotlin
 class MyCoroutineContextElement(val value: String): CoroutineContext.Element {...}
 
@@ -75,6 +75,7 @@ class MyRouteInterceptor : RouteInterceptor.Modifier {
     }
 }
 ```
+It has same abilities as Preprocessors have. You can take a look at it [here](https://github.com/y9vad9/rsocket-kotlin-router/blob/8bace098e0a47e3cf514eec0dfb702f7e4e13591/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L45).
 ### Testability
 `rsocket-kotlin-router` provides ability to test your routes with `router-test` artifact:
 ```kotlin
