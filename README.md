@@ -1,66 +1,82 @@
+![GitHub release (with filter)](https://img.shields.io/github/v/release/y9vad9/rsocket-kotlin-router)
+![GitHub](https://img.shields.io/github/license/y9vad9/rsocket-kotlin-router)
 # rsocket-kotlin-router
-
 `rsocket-kotlin-router` is a customisable library designed to streamline and simplify routing
 for RSocket Kotlin server applications. This library offers a typesafe DSL for handling various
 routes, serving as a declarative simplified alternative to manual routing that would
 otherwise result in long-winded ternary logic or exhaustive when statements.
 
-## Motivation
-
-In transitioning from gRPC to RSocket, a key challenge faced was managing requests
-safely and efficiently in the absence of a built-in routing system. Although RSocket
-provides experimental support for retrieving route metadata, it fails to offer bundled
-logic for declaring routes. This would typically result in a convoluted and unscaleable
-routing setup for larger projects. `rsocket-kotlin-router` serves as a solution to this,
-providing a neat and modular approach to managing RSocket routes and not only.
-
-## Example
-Here is the small example of how it all works:
+## Features
+### Router
+It's the basic thing in the `rsocket-kotlin-router` that's responsible for managing routes, their settings, etc. You
+can define it in a next way:
 ```kotlin
-internal fun RSocketConnectionAcceptor(
-    service: YourService,
-): ConnectionAcceptor {
-    return ConnectionAcceptor {
-        RSocketRequestHandler {
-            router {
-                routeSeparator = '.'
-                routeProvider { metadata -> metadata?.read(RoutingMetadata)?.tags?.first() ?: error("...") }
-                
-                preprocessors {
-                    // executes before routing feature
-                    forCoroutineContext(MyRequestPreprocessor())
-                }
-                
-                sharedInterceptors {
-                    forCoroutineContext(MyCoroutineContextInterceptor())
-                }
-                
-                routing {
-                    route("users") {
-                        interceptors {
-                            // registers for current route and sub-routes.
-                            forModification(MyModificationInterceptor())
-                        }
-                        
-                        requestResponse("get") { payload ->
-                            TODO()
-                        }
-                    }
-                }
-            }
+val ServerRouter = router {
+    router {
+        routeSeparator = '.'
+        routeProvider { metadata -> 
+            metadata?.read(RoutingMetadata)?.tags?.first() 
+                ?: throw RSocketError.Invalid("No routing metadata was provided")
+        }
+        
+        routing { // this: RoutingBuilder
+            // ...
         }
     }
 }
 ```
+To install it later, you can use `Router.installOn(RSocketRequestHandlerBuilder)` function:
+```kotlin
+fun ServerRequestHandler(router: Router): RSocket = RSocketRequestHandlerBuilder {
+    router.installOn(this)
+}
+```
+Or you can call `router` function directly in the `RSocketRequestHandlerBuilder` context – it will automatically
+install router on the given context.
 
-So, as you can see, library provides `router` function for `RSocketRequestHandler` context. It has
-a few customization settings for handling routing in your own style. In addition to it, for convenience, library also provides its own interceptors API (for processing `Payload`) with
-kotlin coroutines and modifications. You can take a look at them [here](router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt).
+### Routing Builder
+You can define routes using bundled DSL-Builder functions:
+```kotlin
+fun RoutingBuilder.usersRoute(): Unit = route("users") {
+    // extension function that wraps RSocket `requestResponse` into `route` with given path.
+    requestResponse("get") { payload -> TODO() }
 
-### Testing
+    // ... other
+}
+```
+> **Note** <br>
+> The library does not include the functionality to add routing to a `metadataPush` type of request. I am not sure
+> how it should be exactly implemented (API), so your ideas are welcome. For now, I consider it as per-project responsibility.
+### Interceptors
+> **Warning** <br>
+> Interceptors are experimental feature: API can be changed in the future.
 
+#### Preprocessors
+Preprocessors are utilities that run before routing feature applies. For cases, when you need to transform input into something or propagate
+values using coroutines – you can extend [`Preprocessor.Modifier`](https://github.com/y9vad9/rsocket-kotlin-router/blob/2a794e9a8c5d2ac53cb87ea58cfbe4a2ecfa217d/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L39) or [`Preprocessor.CoroutineContext`](https://github.com/y9vad9/rsocket-kotlin-router/blob/master/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L31). Here's an example:
+```kotlin
+class MyCoroutineContextElement(val value: String): CoroutineContext.Element {...}
+
+@OptIn(ExperimentalInterceptorsApi::class)
+class MyCoroutineContextPreprocessor : Preprocessor.CoroutineContext {
+    override fun intercept(coroutineContext: CoroutineContext, input: Payload): CoroutineContext {
+        return coroutineContext + MyCoroutineContextElement(value = "smth")
+    }
+}
+```
+
+#### Route Interceptors
+In addition to the `Preprocessors`, `rsocket-kotlin-router` also provides API to intercept specific routes:
+```kotlin
+@OptIn(ExperimentalInterceptorsApi::class)
+class MyRouteInterceptor : RouteInterceptor.Modifier {
+    override fun intercept(route: String, input: Payload): Payload {
+        return Payload.Empty // just for example
+    }
+}
+```
+### Testability
 `rsocket-kotlin-router` provides ability to test your routes with `router-test` artifact:
-
 ```kotlin
 @Test
 fun testRoutes() {
@@ -71,7 +87,7 @@ fun testRoutes() {
         route1.assertHasInterceptor<MyInterceptor>()
         route2.assertHasInterceptor<MyInterceptor>()
 
-        route2.fireAndForgetOrAssert(emptyRSocket(), buildPayload {
+        route2.fireAndForgetOrAssert(buildPayload {
             data("test")
         })
     }
@@ -87,9 +103,9 @@ repositories {
 }
 
 dependencies {
-    implementation("com.y9vad9.rsocket.router:router-core:1.1.0")
+    implementation("com.y9vad9.rsocket.router:router-core:$version")
     // for testing
-    implementation("com.y9vad9.rsocket.router:router-test:1.1.0")
+    implementation("com.y9vad9.rsocket.router:router-test:$version")
 }
 ```
 > For now, it's available for JVM only, but as there is no JVM platform API used,
