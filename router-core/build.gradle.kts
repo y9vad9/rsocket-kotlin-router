@@ -19,7 +19,7 @@ dependencies {
 }
 
 deployLibrary {
-    ssh(tag = "maven.y9vad9.com") {
+    ssh(tag = "routerCore") {
         host = System.getenv("SSH_HOST")
         user = System.getenv("SSH_USER")
         password = System.getenv("SSH_PASSWORD")
