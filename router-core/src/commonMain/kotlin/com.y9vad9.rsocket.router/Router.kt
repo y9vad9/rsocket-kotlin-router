@@ -9,12 +9,15 @@ import com.y9vad9.rsocket.router.builders.RouterBuilder
 import com.y9vad9.rsocket.router.interceptors.Preprocessor
 import com.y9vad9.rsocket.router.interceptors.RouteInterceptor
 import io.rsocket.kotlin.*
+import io.rsocket.kotlin.payload.Payload
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.withContext
 
 /**
  * The RSocket router with all registered routes, configurations, preprocessors
  * and interceptors.
  */
-public sealed interface Router {
+public interface Router {
     /**
      * The route separator character used in the application.
      *
@@ -63,29 +66,55 @@ public fun router(builder: RouterBuilder.() -> Unit): Router = RouterBuilder().a
  * **Implementation note**: As [Router] does not provide `metadataPush` feature, this function is especially
  * useful if you want to additionally provide it for your [RSocket] instance.
  */
-@OptIn(ExperimentalRouterApi::class, InternalRouterApi::class)
+@OptIn(ExperimentalRouterApi::class, ExperimentalInterceptorsApi::class, InternalRouterApi::class)
 public fun Router.installOn(handlerBuilder: RSocketRequestHandlerBuilder): Unit = with(handlerBuilder) {
     requestResponse { payload ->
-        routeAtOrFail(getRoutePathFromMetadata(payload.metadata))
-            .requestResponseOrThrow(payload)
+        payload.intercept(preprocessors) {
+            routeAtOrFail(getRoutePathFromMetadata(it.metadata))
+                .requestResponseOrThrow(it)
+        }
     }
 
     requestStream { payload ->
-        routeAtOrFail(getRoutePathFromMetadata(payload.metadata))
-            .requestStreamOrThrow(payload)
+        payload.intercept(preprocessors) {
+            routeAtOrFail(getRoutePathFromMetadata(it.metadata))
+                .requestStreamOrThrow(it)
+        }
     }
 
     requestChannel { initPayload, payloads ->
-        routeAtOrFail(getRoutePathFromMetadata(initPayload.metadata))
-            .requestChannelOrThrow(initPayload, payloads)
+        initPayload.intercept(preprocessors) {
+            routeAtOrFail(getRoutePathFromMetadata(it.metadata))
+                .requestChannelOrThrow(it, payloads)
+        }
     }
 
     fireAndForget { payload ->
-        routeAtOrFail(getRoutePathFromMetadata(payload.metadata))
-            .fireAndForgetOrThrow(payload)
+        payload.intercept(preprocessors) {
+            routeAtOrFail(getRoutePathFromMetadata(it.metadata))
+                .fireAndForgetOrThrow(it)
+        }
     }
 }
 
+@OptIn(ExperimentalInterceptorsApi::class)
+private suspend inline fun <R> Payload.intercept(preprocessors: List<Preprocessor>, crossinline block: suspend (Payload) -> R): R {
+    var coroutineContext = currentCoroutineContext()
+
+    val processed = preprocessors.fold(this) { acc, preprocessor ->
+        when (preprocessor) {
+            is Preprocessor.CoroutineContext -> {
+                coroutineContext = preprocessor.intercept(coroutineContext, acc)
+                acc
+            }
+            is Preprocessor.Modifier -> preprocessor.intercept(acc)
+        }
+    }
+
+    return withContext(coroutineContext) {
+        block(processed)
+    }
+}
 
 @Suppress("UnusedReceiverParameter")
 public fun ConnectionAcceptor.installRouter(router: Router): RSocket {
