@@ -20,6 +20,15 @@ pluginManagement {
 
 rootProject.name = "rsocket-kotlin-router"
 
-includeBuild("build-logic/publish-library-plugin")
+includeBuild("build-conventions")
 
-include(":router-core", ":router-test")
+include(":router-core", ":router-core:test")
+include(
+    ":router-versioning:core",
+    ":router-versioning:serialization",
+)
+include(
+    ":router-serialization:core",
+    ":router-serialization:json",
+    ":router-serialization:test",
+)
