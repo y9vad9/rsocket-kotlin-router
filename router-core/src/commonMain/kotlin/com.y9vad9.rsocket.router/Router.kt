@@ -71,28 +71,28 @@ public fun Router.installOn(handlerBuilder: RSocketRequestHandlerBuilder): Unit 
     requestResponse { payload ->
         payload.intercept(preprocessors) {
             routeAtOrFail(getRoutePathFromMetadata(it.metadata))
-                .requestResponseOrThrow(it)
+                .requestResponse(it)
         }
     }
 
     requestStream { payload ->
         payload.intercept(preprocessors) {
             routeAtOrFail(getRoutePathFromMetadata(it.metadata))
-                .requestStreamOrThrow(it)
+                .requestStream(it)
         }
     }
 
     requestChannel { initPayload, payloads ->
         initPayload.intercept(preprocessors) {
             routeAtOrFail(getRoutePathFromMetadata(it.metadata))
-                .requestChannelOrThrow(it, payloads)
+                .requestChannel(it, payloads)
         }
     }
 
     fireAndForget { payload ->
         payload.intercept(preprocessors) {
             routeAtOrFail(getRoutePathFromMetadata(it.metadata))
-                .fireAndForgetOrThrow(it)
+                .fireAndForget(it)
         }
     }
 }

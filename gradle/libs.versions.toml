@@ -12,9 +12,12 @@ rsocket-server = { module = "io.rsocket.kotlin:rsocket-ktor-server", version.ref
 rsocket-test = { module = "io.rsocket.kotlin:rsocket-test", version.ref = "rsocket" }
 rsocket-server-websockets = { module = "io.rsocket.kotlin:rsocket-transport-ktor-websocket-server", version.ref = "rsocket" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+publish-library = { module = "publish-library:publish-library", version.require = "SNAPSHOT" }
+vanniktech-maven-publish = { module = "com.vanniktech.maven.publish:com.vanniktech.maven.publish.gradle.plugin", version.require = "0.25.3" }
 
 [plugins]
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-library-publish = { id = "publish-library", version.require = "SNAPSHOT" }
+multiplatform-module-convention = { id = "multiplatform-module-convention", version.require = "SNAPSHOT" }

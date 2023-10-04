@@ -16,7 +16,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '11'
           distribution: 'corretto'
 
       - name: Cache Gradle dependencies
@@ -35,4 +35,4 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
           SSH_USER: ${{ secrets.SSH_USER }}
-        run: ./gradlew publish -Pversion=dev-${{ env.LIB_VERSION }}
+        run: ./gradlew publish

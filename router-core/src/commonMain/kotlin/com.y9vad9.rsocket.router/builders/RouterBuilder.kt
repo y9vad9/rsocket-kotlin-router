@@ -1,6 +1,5 @@
 package com.y9vad9.rsocket.router.builders
 
-import io.ktor.utils.io.core.*
 import com.y9vad9.rsocket.router.Router
 import com.y9vad9.rsocket.router.RouterImpl
 import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
@@ -12,6 +11,7 @@ import com.y9vad9.rsocket.router.interceptors.Preprocessor
 import com.y9vad9.rsocket.router.interceptors.RouteInterceptor
 import com.y9vad9.rsocket.router.interceptors.builder.PreprocessorsBuilder
 import com.y9vad9.rsocket.router.interceptors.builder.RouteInterceptorsBuilder
+import io.ktor.utils.io.core.*
 
 @RouterDsl
 public class RouterBuilder @InternalRouterApi constructor() {
@@ -45,14 +45,12 @@ public class RouterBuilder @InternalRouterApi constructor() {
      */
     @ExperimentalInterceptorsApi
     public fun preprocessors(builder: PreprocessorsBuilder.() -> Unit) {
-        require(preprocessors == null) { "preprocessors should be defined once." }
-        preprocessors = PreprocessorsBuilder().apply(builder).build()
+        preprocessors = (preprocessors ?: emptyList()) + PreprocessorsBuilder().apply(builder).build()
     }
 
     @ExperimentalInterceptorsApi
     public fun sharedInterceptors(builder: RouteInterceptorsBuilder.() -> Unit) {
-        require(sharedInterceptors == null) { "sharedInterceptors should be defined once." }
-        sharedInterceptors = RouteInterceptorsBuilder().apply(builder).build()
+        sharedInterceptors = (sharedInterceptors ?: emptyList()) + RouteInterceptorsBuilder().apply(builder).build()
     }
 
     public fun routeProvider(provider: suspend (metadata: ByteReadPacket?) -> String) {

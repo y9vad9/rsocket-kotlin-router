@@ -23,28 +23,28 @@ public data class Route internal constructor(
     @property:ExperimentalInterceptorsApi
     val interceptors: List<RouteInterceptor>,
 ) {
-    public suspend fun fireAndForgetOrThrow(payload: Payload) {
+    public suspend fun fireAndForget(payload: Payload) {
         processPayload(payload) { payload ->
             requests.fireAndForget?.invoke(payload)
                 ?: throwInvalidRequestOnRoute("fireAndForget")
         }
     }
 
-    public suspend fun requestResponseOrThrow(payload: Payload): Payload {
+    public suspend fun requestResponse(payload: Payload): Payload {
         return processPayload(payload) { payload ->
             requests.requestResponse?.invoke(payload)
                 ?: throwInvalidRequestOnRoute("requestResponse")
         }
     }
 
-    public suspend fun requestStreamOrThrow(payload: Payload): Flow<Payload> {
+    public suspend fun requestStream(payload: Payload): Flow<Payload> {
         return processPayload(payload) { payload ->
             requests.requestStream?.invoke(payload)
                 ?: throwInvalidRequestOnRoute("requestStream")
         }
     }
 
-    public suspend fun requestChannelOrThrow(
+    public suspend fun requestChannel(
         initPayload: Payload,
         payloads: Flow<Payload>,
     ): Flow<Payload> = processPayload(initPayload) { initialPayload ->

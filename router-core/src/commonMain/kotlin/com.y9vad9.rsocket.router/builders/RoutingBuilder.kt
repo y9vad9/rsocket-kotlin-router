@@ -1,5 +1,7 @@
 package com.y9vad9.rsocket.router.builders
 
+import com.y9vad9.rsocket.router.Route
+import com.y9vad9.rsocket.router.annotations.ExperimentalRouterApi
 import io.ktor.utils.io.core.*
 import io.rsocket.kotlin.ExperimentalMetadataApi
 import io.rsocket.kotlin.RSocketError
@@ -8,9 +10,12 @@ import io.rsocket.kotlin.metadata.RoutingMetadata
 import io.rsocket.kotlin.metadata.read
 import com.y9vad9.rsocket.router.annotations.RouterDsl
 import com.y9vad9.rsocket.router.router
+import io.ktor.server.routing.*
 
 /**
  * Interface for building routes for RSocket requests.
+ *
+ * **Not stable for inheritance.**
  */
 @RouterDsl
 public interface RoutingBuilder {
