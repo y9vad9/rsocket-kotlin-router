@@ -19,7 +19,7 @@ public class VersioningBuilder<T, R> internal constructor() {
      * @param version The new version to be applied.
      * @param block The coroutine block that will be executed for the given version.
      */
-    public fun version(version: Version, block: suspend (T) -> R): Unit {
+    public fun version(version: Version, block: suspend (T) -> R) {
         versionedRequest = when (val versionedRequest = versionedRequest) {
             null -> {
                 VersionedRequest.SingleConditional(
@@ -41,12 +41,14 @@ public class VersioningBuilder<T, R> internal constructor() {
 
             is VersionedRequest.MultipleConditional<T, R> -> {
                 versionedRequest.copy(
-                    variants = versionedRequest.variants.mapIndexed { index, (requirements, function) ->
+                    variants = (versionedRequest.variants.mapIndexed { index, (requirements, function) ->
                         if (index == versionedRequest.variants.lastIndex)
                             requirements.copy(
                                 lastAcceptableVersion = (requirements.firstAcceptableVersion until version).endInclusive,
                             ) to function
                         else requirements to function
+                    } + (VersionRequirements(version, Version.INDEFINITE) to block)).sortedBy {
+                        it.first.firstAcceptableVersion
                     }
                 )
             }

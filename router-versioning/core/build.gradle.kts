@@ -5,6 +5,9 @@ plugins {
 dependencies {
     commonMainImplementation(libs.rsocket.server)
     commonMainImplementation(projects.routerCore)
+
+    jvmTestImplementation(libs.kotlin.test)
+    jvmTestImplementation(projects.routerCore.test)
 }
 
 mavenPublishing {

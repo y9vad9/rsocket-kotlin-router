@@ -53,10 +53,11 @@ internal sealed class VersionedRequest<T, R> {
 
             return variants.firstOrNull { (requirement, _) ->
                 requirement.satisfies(version)
-            }?.second?.invoke(input) ?: throw RSocketError.Rejected("Request is not available for your API version.")
+            }?.also { println(it.first) }?.second?.invoke(input) ?: throw RSocketError.Rejected("Request is not available for your API version.")
         }
     }
 }
+
 
 public data class PayloadStream(
     val initPayload: io.rsocket.kotlin.payload.Payload,
