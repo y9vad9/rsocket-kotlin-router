@@ -5,10 +5,13 @@ import com.y9vad9.rsocket.router.versioning.preprocessor.VersionPreprocessor
 import kotlin.coroutines.coroutineContext
 
 /**
- * Represents a version number.
+ * Represents a version with major, minor, and patch components.
  *
- * @param double The numerical value of the version.
- * @throws IllegalArgumentException if the version is negative.
+ * @property major The major version component.
+ * @property minor The minor version component.
+ * @property patch The patch version component.
+ * @constructor Creates a Version instance with the specified major, minor, and patch components.
+ * @throws IllegalArgumentException if major, minor, or patch is negative.
  */
 public data class Version(public val major: Int, public val minor: Int, public val patch: Int = 0) : Comparable<Version> {
     init {
@@ -59,9 +62,13 @@ public data class Version(public val major: Int, public val minor: Int, public v
  */
 public infix fun Version.until(another: Version): ClosedRange<Version> {
     return when {
-        another.patch > 0 -> this .. another.copy(patch = patch - 1)
-        another.minor > 0 -> this .. another.copy(minor = minor - 1)
-        another.major > 0 -> this .. another.copy(major = major - 1)
+        another.patch > 0 -> this .. another.copy(patch = another.patch - 1)
+        another.minor > 0 -> this .. another.copy(minor = another.minor - 1, patch = Int.MAX_VALUE)
+        another.major > 0 -> this .. another.copy(
+            major = another.major - 1,
+            minor = Int.MAX_VALUE,
+            patch = Int.MAX_VALUE,
+        )
         else -> error("Unable to create `until` range – version cannot be negative.")
     }
 }

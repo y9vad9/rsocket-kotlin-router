@@ -21,9 +21,9 @@ public abstract class VersionPreprocessor : Preprocessor.CoroutineContext {
      * @param payload The payload containing the version information.
      * @return The version extracted from the payload.
      */
-    public abstract fun version(payload: Payload): Version
+    public abstract fun version(payload: Payload, coroutineContext: CoroutineContext): Version
 
     final override fun intercept(coroutineContext: CoroutineContext, input: Payload): CoroutineContext {
-        return coroutineContext + VersionElement(version(input))
+        return coroutineContext + VersionElement(version(input, coroutineContext))
     }
 }
