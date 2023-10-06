@@ -7,7 +7,7 @@ routes, serving as a declarative simplified alternative to manual routing that w
 otherwise result in long-winded ternary logic or exhaustive when statements.
 
 Library provides the following features:
-- [Routing Builder](#Interceptors)
+- [Routing Builder](#how-to-use)
 - [Interceptors](#Interceptors)
 - [Request Versioning](router-versioning)
 - [Request Serialization](router-serialization)
