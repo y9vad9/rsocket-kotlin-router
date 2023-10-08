@@ -12,7 +12,7 @@ Every type of request with the `router-versioning-core` artifact now has its ext
 ```kotlin
 val router = {
     routeProvider { /*...*/ }
-    versionProvider { coroutineContext, payload -> Version(/* ... */) }
+    versioning { coroutineContext, payload -> Version(/* ... */) }
 
     routing {
         route("authorization") {
