@@ -74,6 +74,7 @@ public inline fun <reified T : Any, reified R : Any> VersioningBuilder<PayloadSt
     }
 }
 
+@JvmName("versionRequestResponse")
 public inline fun <reified T : Any, reified R : Any> VersioningBuilder<Payload, Payload>.version(
     fromMajor: Int,
     untilMajor: Int = Int.MAX_VALUE,
@@ -86,6 +87,7 @@ public inline fun <reified T : Any, reified R : Any> VersioningBuilder<Payload, 
     )
 }
 
+@JvmName("versionFireAndForget")
 public inline fun <reified T : Any> VersioningBuilder<Payload, Unit>.version(
     fromMajor: Int,
     untilMajor: Int = Int.MAX_VALUE,
@@ -98,6 +100,7 @@ public inline fun <reified T : Any> VersioningBuilder<Payload, Unit>.version(
     )
 }
 
+@JvmName("versionRequestStream")
 public inline fun <reified T : Any, reified R : Any> VersioningBuilder<Payload, Flow<Payload>>.version(
     fromMajor: Int,
     untilMajor: Int = Int.MAX_VALUE,
@@ -110,7 +113,8 @@ public inline fun <reified T : Any, reified R : Any> VersioningBuilder<Payload, 
     )
 }
 
-@OptIn(InternalRouterSerializationApi::class)
+
+@JvmName("versionRequestChannel")
 public inline fun <reified T : Any, reified R : Any> VersioningBuilder<PayloadStream, Flow<Payload>>.version(
     fromMajor: Int,
     untilMajor: Int = Int.MAX_VALUE,
