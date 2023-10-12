@@ -16,10 +16,11 @@ import kotlinx.coroutines.flow.map
 
 @JvmName("versionRequestResponse")
 public inline fun <reified T : Any, reified R : Any> VersioningBuilder<Payload, Payload>.version(
-    version: Version,
+    from: Version,
+    until: Version = Version.INDEFINITE,
     crossinline block: suspend (T) -> R,
 ) {
-    version(version) { payload ->
+    version(from, until) { payload ->
         val contentSerializer = SerializationProvider.getFromCoroutineContext()
 
         block(contentSerializer.decode(payload.data))
@@ -30,10 +31,11 @@ public inline fun <reified T : Any, reified R : Any> VersioningBuilder<Payload, 
 
 @JvmName("versionFireAndForget")
 public inline fun <reified T : Any> VersioningBuilder<Payload, Unit>.version(
-    version: Version,
+    from: Version,
+    until: Version = Version.INDEFINITE,
     crossinline block: suspend (T) -> Unit,
 ) {
-    version(version) { payload ->
+    version(from, until) { payload ->
         val contentSerializer = SerializationProvider.getFromCoroutineContext()
 
         block(contentSerializer.decode(payload.data))
@@ -42,10 +44,11 @@ public inline fun <reified T : Any> VersioningBuilder<Payload, Unit>.version(
 
 @JvmName("versionRequestStream")
 public inline fun <reified T : Any, reified R : Any> VersioningBuilder<Payload, Flow<Payload>>.version(
-    version: Version,
+    from: Version,
+    until: Version = Version.INDEFINITE,
     crossinline block: suspend (T) -> Flow<R>,
 ) {
-    version(version) { payload ->
+    version(from, until) { payload ->
         val contentSerializer = SerializationProvider.getFromCoroutineContext()
 
         block(contentSerializer.decode(payload.data))
@@ -56,10 +59,11 @@ public inline fun <reified T : Any, reified R : Any> VersioningBuilder<Payload, 
 @JvmName("versionRequestChannel")
 @OptIn(InternalRouterSerializationApi::class)
 public inline fun <reified T : Any, reified R : Any> VersioningBuilder<PayloadStream, Flow<Payload>>.version(
-    version: Version,
+    from: Version,
+    until: Version = Version.INDEFINITE,
     crossinline block: suspend (initial: T, payloads: Flow<T>) -> Flow<R>,
 ) {
-    version(version) { payload ->
+    version(from, until) { payload ->
         val contentSerializer = SerializationProvider.getFromCoroutineContext()
 
         val initial: T = contentSerializer.decode(payload.initPayload.data)
@@ -68,4 +72,53 @@ public inline fun <reified T : Any, reified R : Any> VersioningBuilder<PayloadSt
         block(initial, payloads)
             .map { Payload(contentSerializer.encode(it)) }
     }
+}
+
+public inline fun <reified T : Any, reified R : Any> VersioningBuilder<Payload, Payload>.version(
+    fromMajor: Int,
+    untilMajor: Int = Int.MAX_VALUE,
+    crossinline block: suspend (T) -> R,
+) {
+    version(
+        from = Version(major = fromMajor, minor = 0),
+        until = Version(major = untilMajor, minor = 0),
+        block = block,
+    )
+}
+
+public inline fun <reified T : Any> VersioningBuilder<Payload, Unit>.version(
+    fromMajor: Int,
+    untilMajor: Int = Int.MAX_VALUE,
+    crossinline block: suspend (T) -> Unit,
+) {
+    version(
+        from = Version(major = fromMajor, minor = 0),
+        until = Version(major = untilMajor, minor = 0),
+        block = block,
+    )
+}
+
+public inline fun <reified T : Any, reified R : Any> VersioningBuilder<Payload, Flow<Payload>>.version(
+    fromMajor: Int,
+    untilMajor: Int = Int.MAX_VALUE,
+    crossinline block: suspend (T) -> Flow<R>,
+) {
+    version(
+        from = Version(major = fromMajor, minor = 0),
+        until = Version(major = untilMajor, minor = 0),
+        block = block,
+    )
+}
+
+@OptIn(InternalRouterSerializationApi::class)
+public inline fun <reified T : Any, reified R : Any> VersioningBuilder<PayloadStream, Flow<Payload>>.version(
+    fromMajor: Int,
+    untilMajor: Int = Int.MAX_VALUE,
+    crossinline block: suspend (initial: T, payloads: Flow<T>) -> Flow<R>,
+) {
+    version(
+        from = Version(major = fromMajor, minor = 0),
+        until = Version(major = untilMajor, minor = 0),
+        block = block,
+    )
 }

@@ -3,7 +3,7 @@ package com.y9vad9.rsocket.router.versioning
 import com.y9vad9.rsocket.router.builders.DeclarableRoutingBuilder
 import com.y9vad9.rsocket.router.versioning.annotations.VersioningDsl
 import com.y9vad9.rsocket.router.versioning.builders.VersioningBuilder
-import com.y9vad9.rsocket.router.versioning.preprocessor.VersionPreprocessor
+import com.y9vad9.rsocket.router.versioning.preprocessor.RequestVersionProvider
 import io.rsocket.kotlin.payload.Payload
 import kotlinx.coroutines.flow.Flow
 
@@ -29,7 +29,7 @@ public fun DeclarableRoutingBuilder.requestResponseVersioned(
  * @param path The URL path for the endpoint.
  * @param block A lambda function that configures the endpoint using a [VersioningBuilder].
  *
- * @throws IllegalStateException if the [VersionPreprocessor] is not registered.
+ * @throws IllegalStateException if the [RequestVersionProvider] is not registered.
  */
 @VersioningDsl
 public fun DeclarableRoutingBuilder.requestResponseVersioned(
@@ -70,7 +70,7 @@ public fun DeclarableRoutingBuilder.requestStreamVersioned(
  * @param path The URL path for the endpoint.
  * @param block A lambda function that configures the endpoint using a [VersioningBuilder].
  *
- * @throws IllegalStateException if the [VersionPreprocessor] is not registered.
+ * @throws IllegalStateException if the [RequestVersionProvider] is not registered.
  */
 @VersioningDsl
 public fun DeclarableRoutingBuilder.requestStreamVersioned(
@@ -111,7 +111,7 @@ public fun DeclarableRoutingBuilder.fireAndForgetVersioned(
  * @param path The URL path for the endpoint.
  * @param block A lambda function that configures the endpoint using a [VersioningBuilder].
  *
- * @throws IllegalStateException if the [VersionPreprocessor] is not registered.
+ * @throws IllegalStateException if the [RequestVersionProvider] is not registered.
  */
 @VersioningDsl
 public fun DeclarableRoutingBuilder.fireAndForgetVersioned(
@@ -152,7 +152,7 @@ public fun DeclarableRoutingBuilder.requestChannelVersioned(
  * @param path The URL path for the endpoint.
  * @param block A lambda function that configures the endpoint using a [VersioningBuilder].
  *
- * @throws IllegalStateException if the [VersionPreprocessor] is not registered.
+ * @throws IllegalStateException if the [RequestVersionProvider] is not registered.
  */
 @VersioningDsl
 public fun DeclarableRoutingBuilder.requestChannelVersioned(
