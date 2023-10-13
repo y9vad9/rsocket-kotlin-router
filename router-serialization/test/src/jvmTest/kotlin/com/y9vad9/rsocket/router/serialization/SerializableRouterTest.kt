@@ -2,6 +2,7 @@ package com.y9vad9.rsocket.router.serialization
 
 import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
 import com.y9vad9.rsocket.router.router
+import com.y9vad9.rsocket.router.serialization.annotations.ExperimentalRouterSerializationApi
 import com.y9vad9.rsocket.router.serialization.json.JsonContentSerializer
 import com.y9vad9.rsocket.router.serialization.preprocessor.SerializationProvider
 import com.y9vad9.rsocket.router.serialization.preprocessor.serialization
@@ -19,6 +20,7 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@OptIn(ExperimentalRouterSerializationApi::class)
 class SerializableRouterTest {
     @Serializable
     private data class Foo(val bar: Int)
