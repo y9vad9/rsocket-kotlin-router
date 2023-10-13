@@ -14,8 +14,13 @@ First, add the necessary dependencies:
 ```kotlin
 dependencies {
     implementation("com.y9vad9.rsocket.router:router-serialization-core:$version")
+    
     // for JSON support
     implementation("com.y9vad9.rsocket.router:router-serialization-json:$version")
+    // for ProtoBuf support
+    implementation("com.y9vad9.rsocket.router:router-serialization-protobuf:$version")
+    // for Cbor support
+    implementation("com.y9vad9.rsocket.router:router-serialization-cbor:$version")
 }
 ```
 ### Installation
