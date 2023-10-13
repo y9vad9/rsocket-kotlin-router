@@ -4,25 +4,24 @@ plugins {
 
 dependencies {
     commonMainImplementation(libs.rsocket.server)
-    commonMainImplementation(libs.kotlinx.serialization.core)
+    commonMainImplementation(libs.kotlinx.serialization.cbor)
 
-    commonMainImplementation(projects.routerVersioning.core)
     commonMainImplementation(projects.routerSerialization.core)
-
     commonMainImplementation(projects.routerCore)
 }
 
 mavenPublishing {
     coordinates(
         groupId = "com.y9vad9.rsocket.router",
-        artifactId = "router-versioning-serialization",
+        artifactId = "router-serialization-cbor",
         version = System.getenv("LIB_VERSION") ?: return@mavenPublishing
     )
 
     pom {
-        name.set("Router Versioning Serialization Adapter")
-        description.set("""
-            Kotlin RSocket library for supporting serialization mechanism in versioned routes.
+        name.set("Router Serialization (Json)")
+        description.set(
+            """
+            Kotlin RSocket library for type-safe serializable routing. Provides Cbor implementation of `ContentSerializer`.
             """.trimIndent()
         )
     }

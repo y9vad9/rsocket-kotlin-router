@@ -30,5 +30,7 @@ include(
 include(
     ":router-serialization:core",
     ":router-serialization:json",
+    ":router-serialization:protobuf",
+    ":router-serialization:cbor",
     ":router-serialization:test",
 )

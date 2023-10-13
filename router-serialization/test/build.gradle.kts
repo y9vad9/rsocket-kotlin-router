@@ -5,14 +5,19 @@ plugins {
 
 dependencies {
     commonMainImplementation(libs.rsocket.server)
-    commonMainImplementation(libs.kotlinx.serialization)
 
 
     commonMainImplementation(projects.routerCore)
     commonMainImplementation(projects.routerCore.test)
     commonMainImplementation(projects.routerSerialization.core)
 
+    jvmTestImplementation(libs.kotlinx.serialization.json)
+    jvmTestImplementation(libs.kotlinx.serialization.cbor)
+    jvmTestImplementation(libs.kotlinx.serialization.protobuf)
+
     jvmTestImplementation(projects.routerSerialization.json)
+    jvmTestImplementation(projects.routerSerialization.cbor)
+    jvmTestImplementation(projects.routerSerialization.protobuf)
     jvmTestImplementation(libs.kotlin.test)
 }
 

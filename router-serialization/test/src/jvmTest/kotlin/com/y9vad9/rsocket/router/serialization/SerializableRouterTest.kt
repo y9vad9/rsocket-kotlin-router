@@ -3,7 +3,9 @@ package com.y9vad9.rsocket.router.serialization
 import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
 import com.y9vad9.rsocket.router.router
 import com.y9vad9.rsocket.router.serialization.annotations.ExperimentalRouterSerializationApi
+import com.y9vad9.rsocket.router.serialization.json.CborContentSerializer
 import com.y9vad9.rsocket.router.serialization.json.JsonContentSerializer
+import com.y9vad9.rsocket.router.serialization.json.ProtobufContentSerializer
 import com.y9vad9.rsocket.router.serialization.preprocessor.SerializationProvider
 import com.y9vad9.rsocket.router.serialization.preprocessor.serialization
 import com.y9vad9.rsocket.router.serialization.test.requestResponseOrAssert
@@ -15,6 +17,7 @@ import io.rsocket.kotlin.metadata.RoutingMetadata.Reader.read
 import io.rsocket.kotlin.metadata.read
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
@@ -41,17 +44,26 @@ class SerializableRouterTest {
         }
     }
 
+    @ExperimentalSerializationApi
     @OptIn(ExperimentalInterceptorsApi::class)
     @Test
     fun `check serialization`() {
-        runBlocking {
-            withContext(SerializationProvider.asContextElement(JsonContentSerializer(Json))) {
-                val result = router.routeAtOrAssert("test")
-                    .requestResponseOrAssert<Foo, Bar>(
-                        data = Foo(0),
-                    )
+        val serializers = listOf(
+            JsonContentSerializer,
+            CborContentSerializer,
+            ProtobufContentSerializer
+        )
 
-                assertEquals(result.foo, 0)
+        runBlocking {
+            serializers.forEach { contentSerializer ->
+                withContext(SerializationProvider.asContextElement(contentSerializer)) {
+                    val result = router.routeAtOrAssert("test")
+                        .requestResponseOrAssert<Foo, Bar>(
+                            data = Foo(0),
+                        )
+
+                    assertEquals(result.foo, 0)
+                }
             }
         }
     }

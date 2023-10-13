@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     commonMainImplementation(libs.rsocket.server)
-    commonMainImplementation(libs.kotlinx.serialization)
+    commonMainImplementation(libs.kotlinx.serialization.json)
 
     commonMainImplementation(projects.routerSerialization.core)
     commonMainImplementation(projects.routerCore)
