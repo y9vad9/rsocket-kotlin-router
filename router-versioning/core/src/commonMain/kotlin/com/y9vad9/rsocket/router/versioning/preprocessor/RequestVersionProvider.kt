@@ -22,14 +22,16 @@ public abstract class RequestVersionProvider : Preprocessor.CoroutineContext {
         /**
          * Retrieves the version from the coroutine context.
          *
-         * **Warning**:
-         * 1) you shouldn't call this function yourself unless you use it to define your own extensions
+         * **API Note**:
+         * You shouldn't call this function yourself unless you use it to define your own extensions
          * that should be dependent on it.
-         * 2) if you didn't call it yourself, probably you need to register `RequestVersionProvider` by
-         * putting it in the preprocessors or by using `versioning` function in `RoutingBuilder`.
          *
-         * **Note**: if function wasn't called by you intentionally and `RequestVersionProvider` is already
-         * registered, but inside `test` artifact you should provide content serializer to context using `asContextElement`.
+         * **Failure note**:
+         * 1) if you didn't call it yourself, probably you need to register `RequestVersionProvider` by
+         * putting it in the preprocessors or by using `versioning` function in `RoutingBuilder`.
+         * 2) if function wasn't called by you intentionally and `RequestVersionProvider` is already
+         * registered, but inside `test` you should provide content serializer to context using
+         * [com.y9vad9.rsocket.router.test.preprocess] or [com.y9vad9.rsocket.router.intercepts] functions.
          *
          * @return The version extracted from the coroutine context.
          * @throws IllegalStateException if the RequestVersionProvider was not registered or called from an illegal context.
