@@ -1,4 +1,5 @@
 ![GitHub release](https://img.shields.io/github/v/release/y9vad9/rsocket-kotlin-router) ![GitHub](https://img.shields.io/github/license/y9vad9/rsocket-kotlin-router)
+
 # RSocket Router
 
 `rsocket-kotlin-router` is a customisable library designed to streamline and simplify routing
@@ -7,14 +8,17 @@ routes, serving as a declarative simplified alternative to manual routing that w
 otherwise result in long-winded ternary logic or exhaustive when statements.
 
 Library provides the following features:
+
 - [Routing Builder](#how-to-use)
 - [Interceptors](#Interceptors)
 - [Request Versioning](router-versioning)
 - [Request Serialization](router-serialization)
 
 ## How to use
+
 First of all, you need to implement basic artifacts with routing support. For now, `rsocket-kotlin-router`
 is available only at my self-hosted maven:
+
 ```kotlin
 repositories {
     maven("https://maven.y9vad9.com")
@@ -24,18 +28,20 @@ dependencies {
     implementation("com.y9vad9.rsocket.router:router-core:$version")
 }
 ```
+
 > For now, it's available for JVM only, but as there is no JVM platform API used,
 > new targets will be available [upon your request](https://github.com/y9vad9/rsocket-kotlin-router/issues/new).
 
 Example of defining RSocket router:
+
 ```kotlin
 val serverRouter = router {
     routeSeparator = '.'
-    routeProvider { metadata: ByteReadPacket? -> 
-        metadata?.read(RoutingMetadata)?.tags?.first() 
+    routeProvider { metadata: ByteReadPacket? ->
+        metadata?.read(RoutingMetadata)?.tags?.first()
             ?: throw RSocketError.Invalid("No routing metadata was provided")
     }
-        
+
     routing { // this: RoutingBuilder
         route("authorization") {
             requestResponse("register") { payload: Payload ->
@@ -56,10 +62,15 @@ See also what else is supported:
 
 <b id="Preprocessors">Preprocessors</b>
 
-Preprocessors are utilities that run before routing feature applies. For cases, when you need to transform input into something or propagate
-values using coroutines – you can extend [`Preprocessor.Modifier`](https://github.com/y9vad9/rsocket-kotlin-router/blob/2a794e9a8c5d2ac53cb87ea58cfbe4a2ecfa217d/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L39) or [`Preprocessor.CoroutineContext`](https://github.com/y9vad9/rsocket-kotlin-router/blob/master/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L31). Here's an example:
+Preprocessors are utilities that run before routing feature applies. For cases, when you need to transform input into
+something or propagate
+values using coroutines – you can
+extend [`Preprocessor.Modifier`](https://github.com/y9vad9/rsocket-kotlin-router/blob/2a794e9a8c5d2ac53cb87ea58cfbe4a2ecfa217d/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L39)
+or [`Preprocessor.CoroutineContext`](https://github.com/y9vad9/rsocket-kotlin-router/blob/master/router-core/src/commonMain/kotlin/com.y9vad9.rsocket.router/interceptors/Interceptor.kt#L31).
+Here's an example:
+
 ```kotlin
-class MyCoroutineContextElement(val value: String): CoroutineContext.Element {...}
+class MyCoroutineContextElement(val value: String) : CoroutineContext.Element {... }
 
 @OptIn(ExperimentalInterceptorsApi::class)
 class MyCoroutineContextPreprocessor : Preprocessor.CoroutineContext {
@@ -72,6 +83,7 @@ class MyCoroutineContextPreprocessor : Preprocessor.CoroutineContext {
 <b id="RouteInterceptors">Route Interceptors</b>
 
 In addition to the `Preprocessors`, `rsocket-kotlin-router` also provides API to intercept specific routes:
+
 ```kotlin
 @OptIn(ExperimentalInterceptorsApi::class)
 class MyRouteInterceptor : RouteInterceptor.Modifier {
@@ -82,45 +94,63 @@ class MyRouteInterceptor : RouteInterceptor.Modifier {
 ```
 
 <b>Installation</b>
+
 ```kotlin
 val serverRouter = router {
     preprocessors {
         forCoroutineContext(MyCoroutineContextPreprocessor())
     }
-    
+
     sharedInterceptors {
         forModification(MyRouteInterceptor())
     }
 }
 ```
+
 </details>
 
 <details>
   <summary>Versioning support</summary>
 
-To use request versioning in your project, use the following artifact:
-
+Here's example of how request versioning looks like:
 ```kotlin
-dependencies {
-    // ...
-    implementation("com.y9vad9.rsocket.router:router-versioning-core:$version")
+requestResponseV("foo") {
+    version(1) { payload: Payload ->
+        // handle requests for version "1.0"
+        Payload.Empty
+    }
+    version(2) { payload: Payload ->
+        // handle requests for version "2.0"
+        Payload.Empty
+    }
 }
 ```
+
 For details, please refer to the [versioning guide](router-versioning/README.md).
 </details>
 
 <details>
   <summary>Serialization support</summary>
 
-To make type-safe requests with serialization/deserialization mechanisms, implement the following:
-
+Here is example of how type-safe requests with serialization/deserialization mechanisms look like:
 ```kotlin
-dependencies {
-    implementation("com.y9vad9.rsocket.router:router-serialization-core:$version")
-    // for JSON support
-    implementation("com.y9vad9.rsocket.router:router-serialization-json:$version")
+requestResponse<Foo, Bar>("register") { foo: Foo ->
+    return@requestResponse Bar(/* ... */)
+}
+
+// or versioned variant:
+
+requestResponseV("register") {
+    version(1) { foo: Foo ->
+        Bar(/* ... */)
+    }
+
+    version(2) { qux: Qux ->
+        FizzBuzz(/* ... */)
+    }
 }
 ```
+
 For details, please refer to the [serialization guide](router-serialization/README.md).
 </details>
 
@@ -152,11 +182,15 @@ fun testRoutes() {
 }
 ```
 
-You can refer to the [example](router-core/test/src/jvmTest/kotlin/com/y9vad9/rsocket/router/test/RouterTest.kt) for more details.
+You can refer to the [example](router-core/test/src/jvmTest/kotlin/com/y9vad9/rsocket/router/test/RouterTest.kt) for
+more details.
 </details>
 
 ## Bugs and Feedback
-For bugs, questions and discussions please use the [GitHub Issues](https://github.com/y9vad9/rsocket-kotlin-router/issues).
+
+For bugs, questions and discussions please use
+the [GitHub Issues](https://github.com/y9vad9/rsocket-kotlin-router/issues).
 
 ## License
+
 This library is licensed under [MIT License](LICENSE). Feel free to use, modify, and distribute it for any purpose.
