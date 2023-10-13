@@ -18,7 +18,7 @@ mavenPublishing {
     )
 
     pom {
-        name.set("Router Serialization (Json)")
+        name.set("Router Serialization (Cbor)")
         description.set(
             """
             Kotlin RSocket library for type-safe serializable routing. Provides Cbor implementation of `ContentSerializer`.
