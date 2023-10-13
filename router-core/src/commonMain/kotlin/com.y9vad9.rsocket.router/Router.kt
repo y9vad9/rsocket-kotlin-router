@@ -69,50 +69,31 @@ public fun router(builder: RouterBuilder.() -> Unit): Router = RouterBuilder().a
 @OptIn(ExperimentalRouterApi::class, ExperimentalInterceptorsApi::class, InternalRouterApi::class)
 public fun Router.installOn(handlerBuilder: RSocketRequestHandlerBuilder): Unit = with(handlerBuilder) {
     requestResponse { payload ->
-        payload.intercept(preprocessors) {
+        preprocessors.intercepts(payload) {
             routeAtOrFail(getRoutePathFromMetadata(it.metadata))
                 .requestResponse(it)
         }
     }
 
     requestStream { payload ->
-        payload.intercept(preprocessors) {
+        preprocessors.intercepts(payload) {
             routeAtOrFail(getRoutePathFromMetadata(it.metadata))
                 .requestStream(it)
         }
     }
 
     requestChannel { initPayload, payloads ->
-        initPayload.intercept(preprocessors) {
+        preprocessors.intercepts(initPayload) {
             routeAtOrFail(getRoutePathFromMetadata(it.metadata))
                 .requestChannel(it, payloads)
         }
     }
 
     fireAndForget { payload ->
-        payload.intercept(preprocessors) {
+        preprocessors.intercepts(payload) {
             routeAtOrFail(getRoutePathFromMetadata(it.metadata))
                 .fireAndForget(it)
         }
-    }
-}
-
-@OptIn(ExperimentalInterceptorsApi::class)
-private suspend inline fun <R> Payload.intercept(preprocessors: List<Preprocessor>, crossinline block: suspend (Payload) -> R): R {
-    var coroutineContext = currentCoroutineContext()
-
-    val processed = preprocessors.fold(this) { acc, preprocessor ->
-        when (preprocessor) {
-            is Preprocessor.CoroutineContext -> {
-                coroutineContext = preprocessor.intercept(coroutineContext, acc)
-                acc
-            }
-            is Preprocessor.Modifier -> preprocessor.intercept(acc)
-        }
-    }
-
-    return withContext(coroutineContext) {
-        block(processed)
     }
 }
 
@@ -150,5 +131,35 @@ internal class RouterImpl @[ExperimentalRouterApi ExperimentalInterceptorsApi] c
     @InternalRouterApi
     override suspend fun getRoutePathFromMetadata(metadata: ByteReadPacket?): String {
         return routeProvider(metadata)
+    }
+}
+
+/**
+ * Applies a list of preprocessors to a payload and then executes a block of code with the processed payload.
+ *
+ * @param payload The payload to be processed.
+ * @param block The block of code to be executed with the processed payload.
+ * @return The result of executing the block of code.
+ */
+@ExperimentalRouterApi
+@ExperimentalInterceptorsApi
+public suspend fun <R> List<Preprocessor>.intercepts(
+    payload: Payload,
+    block: suspend (Payload) -> R,
+): R {
+    var coroutineContext = currentCoroutineContext()
+
+    val processed: Payload = fold(payload) { acc, preprocessor ->
+        when (preprocessor) {
+            is Preprocessor.CoroutineContext -> {
+                coroutineContext = preprocessor.intercept(coroutineContext, acc)
+                acc
+            }
+            is Preprocessor.Modifier -> preprocessor.intercept(acc)
+        }
+    }
+
+    return withContext(coroutineContext) {
+        block(processed)
     }
 }
