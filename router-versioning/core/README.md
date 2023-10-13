@@ -1,4 +1,4 @@
-# `router-versioned-cpre`
+# `router-versioned-core`
 
 This artifact is an auxiliary to the base RSocket Kotlin Router library. It enhances your RSocket
 services with routing layer by adding support for semantic versioning.
@@ -17,7 +17,7 @@ Let's take a brief look at how to use it:
 
 ```kotlin
 @OptIn(ExperimentalInterceptorsApi::class)
-public class VersionProviderPreprocessor : VersionPreprocessor() {
+public class ApiVersionProvider : RequestVersionProvider() {
     override fun version(payload: Payload): Version {
         TODO()
     }
