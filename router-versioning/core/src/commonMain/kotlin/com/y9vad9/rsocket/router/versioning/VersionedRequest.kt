@@ -1,5 +1,8 @@
 package com.y9vad9.rsocket.router.versioning
 
+import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
+import com.y9vad9.rsocket.router.versioning.annotations.InternalVersioningApi
+import com.y9vad9.rsocket.router.versioning.preprocessor.RequestVersionProvider
 import io.rsocket.kotlin.RSocketError
 import kotlinx.coroutines.flow.Flow
 
@@ -29,8 +32,9 @@ internal sealed class VersionedRequest<T, R> {
         val function: suspend (T) -> R,
         val versionRequirements: VersionRequirements
     ) : VersionedRequest<T, R>() {
+        @OptIn(ExperimentalInterceptorsApi::class, InternalVersioningApi::class)
         override suspend fun execute(input: T): R {
-            val version = getRequesterVersion()
+            val version = RequestVersionProvider.getFromCoroutineContext()
 
             if (!versionRequirements.satisfies(version))
                 throw RSocketError.Rejected("Request is not available for your API version.")
@@ -48,8 +52,9 @@ internal sealed class VersionedRequest<T, R> {
     data class MultipleConditional<T, R>(
         val variants: List<Pair<VersionRequirements, suspend (T) -> R>>
     ) : VersionedRequest<T, R>() {
+        @OptIn(ExperimentalInterceptorsApi::class, InternalVersioningApi::class)
         override suspend fun execute(input: T): R {
-            val version = getRequesterVersion()
+            val version = RequestVersionProvider.getFromCoroutineContext()
 
             return variants.firstOrNull { (requirement, _) ->
                 requirement.satisfies(version)

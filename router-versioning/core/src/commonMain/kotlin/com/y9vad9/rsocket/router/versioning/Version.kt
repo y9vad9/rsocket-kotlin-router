@@ -1,7 +1,7 @@
 package com.y9vad9.rsocket.router.versioning
 
 import com.y9vad9.rsocket.router.annotations.ExperimentalInterceptorsApi
-import com.y9vad9.rsocket.router.versioning.preprocessor.VersionPreprocessor
+import com.y9vad9.rsocket.router.versioning.preprocessor.RequestVersionProvider
 import kotlin.coroutines.coroutineContext
 
 /**
@@ -72,18 +72,3 @@ public infix fun Version.until(another: Version): ClosedRange<Version> {
         else -> error("Unable to create `until` range – version cannot be negative.")
     }
 }
-
-
-/**
- * Retrieves the version of the requester.
- *
- * @return The version of the requester if available.
- * @throws IllegalStateException if the version cannot be retrieved. This can happen if the function is called from an illegal context or if the preprocessor wasn't installed.
- *
- * @since 1.0.0
- * @experimental This API is experimental and subject to change in future versions.
- */
-@OptIn(ExperimentalInterceptorsApi::class)
-internal suspend fun getRequesterVersion(): Version =
-    coroutineContext[VersionPreprocessor.VersionElement]?.version
-        ?: error("Unable to retrieve version: Preprocessor wasn't installed.")

@@ -16,15 +16,20 @@ public class VersioningBuilder<T, R> internal constructor() {
     /**
      * Updates the versioned request based on the given version.
      *
-     * @param version The new version to be applied.
+     * @param from From which version to be applied.
+     * @param until Until which version should be applied.
      * @param block The coroutine block that will be executed for the given version.
      */
-    public fun version(version: Version, block: suspend (T) -> R) {
+    public fun version(
+        from: Version,
+        until: Version = Version.INDEFINITE,
+        block: suspend (T) -> R,
+    ) {
         versionedRequest = when (val versionedRequest = versionedRequest) {
             null -> {
                 VersionedRequest.SingleConditional(
                     function = block,
-                    VersionRequirements(firstAcceptableVersion = version, lastAcceptableVersion = Version.INDEFINITE)
+                    VersionRequirements(firstAcceptableVersion = from, lastAcceptableVersion = until)
                 )
             }
 
@@ -32,9 +37,9 @@ public class VersioningBuilder<T, R> internal constructor() {
                 VersionedRequest.MultipleConditional(
                     variants = listOf(
                         versionedRequest.versionRequirements.copy(
-                            lastAcceptableVersion = (versionedRequest.versionRequirements.firstAcceptableVersion until version).endInclusive
+                            lastAcceptableVersion = (versionedRequest.versionRequirements.firstAcceptableVersion until from).endInclusive
                         ) to versionedRequest.function,
-                        VersionRequirements(version, Version.INDEFINITE) to block,
+                        VersionRequirements(from, Version.INDEFINITE) to block,
                     )
                 )
             }
@@ -44,10 +49,10 @@ public class VersioningBuilder<T, R> internal constructor() {
                     variants = (versionedRequest.variants.mapIndexed { index, (requirements, function) ->
                         if (index == versionedRequest.variants.lastIndex)
                             requirements.copy(
-                                lastAcceptableVersion = (requirements.firstAcceptableVersion until version).endInclusive,
+                                lastAcceptableVersion = (requirements.firstAcceptableVersion until from).endInclusive,
                             ) to function
                         else requirements to function
-                    } + (VersionRequirements(version, Version.INDEFINITE) to block)).sortedBy {
+                    } + (VersionRequirements(from, until) to block)).sortedBy {
                         it.first.firstAcceptableVersion
                     }
                 )
@@ -61,9 +66,18 @@ public class VersioningBuilder<T, R> internal constructor() {
 /**
  * Adds a version to the VersioningBuilder.
  *
- * @param major The major version number.
+ * @param fromMajor The major version number from which variant will be applied.
+ * @param untilMajor The major version number until which variant will be applied.
  * @param block The block of code to be executed for the given version.
- * @return Unit
  */
-public fun <T, R> VersioningBuilder<T, R>.version(major: Int, block: suspend (T) -> R): Unit =
-    version(Version(major, 0), block)
+public fun <T, R> VersioningBuilder<T, R>.version(
+    fromMajor: Int,
+    untilMajor: Int = Int.MAX_VALUE,
+    block: suspend (T) -> R,
+) {
+    version(
+        from = Version(major = fromMajor, minor = 0),
+        until = Version(major = untilMajor, minor = 0),
+        block = block,
+    )
+}

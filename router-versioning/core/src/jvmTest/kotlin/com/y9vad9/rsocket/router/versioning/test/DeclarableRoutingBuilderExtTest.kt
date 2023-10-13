@@ -6,7 +6,7 @@ import com.y9vad9.rsocket.router.test.requestResponseOrAssert
 import com.y9vad9.rsocket.router.test.routeAtOrAssert
 import com.y9vad9.rsocket.router.versioning.Version
 import com.y9vad9.rsocket.router.versioning.builders.version
-import com.y9vad9.rsocket.router.versioning.preprocessor.VersionPreprocessor
+import com.y9vad9.rsocket.router.versioning.preprocessor.RequestVersionProvider
 import com.y9vad9.rsocket.router.versioning.requestResponseV
 import com.y9vad9.rsocket.router.versioning.versioning
 import io.ktor.utils.io.core.*
@@ -45,7 +45,7 @@ class DeclarableRoutingBuilderExtTest {
     @Test
     fun `test invalid version should fail`(): Unit = runBlocking {
         // GIVEN
-        val context = VersionPreprocessor.VersionElement(Version(1, 0))
+        val context = RequestVersionProvider.VersionElement(Version(1, 0))
 
         // THEN
         assertFailsWith<RSocketError.Rejected> {
@@ -60,9 +60,9 @@ class DeclarableRoutingBuilderExtTest {
     fun `test 2 version should pass within range`(): Unit = runBlocking {
         // GIVEN
         val contexts = listOf(
-            VersionPreprocessor.VersionElement(Version(2, 0)),
-            VersionPreprocessor.VersionElement(Version(2, 1)),
-            VersionPreprocessor.VersionElement(Version(2, 9)),
+            RequestVersionProvider.VersionElement(Version(2, 0)),
+            RequestVersionProvider.VersionElement(Version(2, 1)),
+            RequestVersionProvider.VersionElement(Version(2, 9)),
         )
 
         // WHEN
@@ -84,9 +84,9 @@ class DeclarableRoutingBuilderExtTest {
     fun `test 3 version should be correct`(): Unit = runBlocking {
         // GIVEN
         val contexts = listOf(
-            VersionPreprocessor.VersionElement(Version(3, 0)),
-            VersionPreprocessor.VersionElement(Version(3, 9)),
-            VersionPreprocessor.VersionElement(Version(4, 0)),
+            RequestVersionProvider.VersionElement(Version(3, 0)),
+            RequestVersionProvider.VersionElement(Version(3, 9)),
+            RequestVersionProvider.VersionElement(Version(4, 0)),
         )
 
         repeat(contexts.size) { time ->
