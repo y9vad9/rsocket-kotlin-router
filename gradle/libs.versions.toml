@@ -23,6 +23,10 @@ vanniktech-maven-publish = { module = "com.vanniktech.maven.publish:com.vannikte
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+wire-schema = { module = "com.squareup.wire:wire-schema", version.require = "4.9.1" }
+
+squareup-okio = { module = "com.squareup.okio:okio", version.require = "3.6.0" }
+squareup-kotlinpoet = { module = "com.squareup:kotlinpoet", version.require = "1.14.2" }
 
 [plugins]
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

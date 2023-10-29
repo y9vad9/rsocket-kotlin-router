@@ -34,3 +34,9 @@ include(
     ":router-serialization:cbor",
     ":router-serialization:test",
 )
+
+include(":router-service:core", ":router-service:proto:codegen")
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+}
